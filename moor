@@ -1,7 +1,7 @@
 #!/usr/bin/env moon
------ mooni -----
--- A basic MoonScript REPL
---
+----- moor -----
+-- MoonScript REPL based mooni
+
 parse = require "moonscript.parse"
 compile = require "moonscript.compile"
 append = table.insert
