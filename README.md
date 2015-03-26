@@ -36,6 +36,9 @@ moor on MoonScript version 0.3.1 on Lua 5.2
 {[__base]:{[__class]:<cycle>, [__index]:<cycle>}, [__name]:"Cls", [__init]:function: 0x1e39f70}
 ```
 
+## Issue
+a lot of. `is_blockstart` function is so bad...
+
 
 ## License
 [MIT](https://github.com/Nymphium/moor/LICENSE)
