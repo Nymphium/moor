@@ -4,6 +4,7 @@
 
 parse = require "moonscript.parse"
 compile = require "moonscript.compile"
+linenoise = require 'linenoise'
 append = table.insert
 
 ------- a useful table dumper ------
@@ -25,17 +26,18 @@ dump = (t, options) ->
 		k += 1
 
 	put_value = (value) ->
-		unless type value == 'table'
+		-- if type value != 'table'
+		unless type value != 'table'
 			put quote value
 			if limit and k > limit
 				buff[k] = "..."
 				error "buffer overrun"
 		else
-			if buff.tables[value] -- cycle detection
-				put "<cycle>"
-			else
+			unless buff.tables[value] -- cycle detection
 				buff.tables[value] = true
 				tbuff value
+			else
+				put "<cycle>"
 		put ', '
 
 	tbuff = (t) ->
@@ -48,7 +50,7 @@ dump = (t, options) ->
 			for key, value in pairs t -- first do the hash part
 				continue if indices and indices[key]
 
-				if type key != 'string' then
+				if type key != 'string'
 					key = '['..tostring(key)..']'
 				elseif key\match '%s'
 					key = quote key
@@ -57,7 +59,7 @@ dump = (t, options) ->
 			if indices -- then bang out the array part
 				for v in *t
 					put_value v
-			if buff[k - 1] == ", " then k -= 1
+			if buff[k - 1] == ', ' then k -= 1
 			put '}'
 
 	-- we pcall because that's the easiest way to bail out if there's an overrun.
@@ -66,7 +68,6 @@ dump = (t, options) ->
 
 ---- tab-completion logic from luaish ------------
 
-ok, linenoise = pcall require, 'linenoise'
 
 is_pair_iterable = (t) -> type(t) == 'table'
 
@@ -106,10 +107,15 @@ completion_handler = (c, s) ->
 
 -- need to keep track of what globals have been added during the session
 oldg = {k, v for k, v in pairs _G}
-_G._FOO = true
 
 -- (this will return their names)
-newglobs = -> [k for k in pairs _G when not oldg[k]]
+-- newglobs = -> [k for k in pairs _G when not oldg[k]]
+newglobs = ->
+	ret = [k for k in pairs _G when not oldg[k]]
+	singularity = "true"
+	if #ret < 1 then table.insert ret, singularity
+	ret
+
 
 chopline = (txt) -> txt\gsub '^[^\n]+\n', '', 1
 firstline = (txt) -> txt\match '^[^\n]*'
@@ -167,13 +173,22 @@ eval_moon = (moon_code) ->
 	old_lua_code = lua_code
 	eval_lua lua_code
 
----- parsing command line -------
-print "moor on MoonScript version " .. (require "moonscript.version").version .. " on " .. _VERSION
 
+---- parsing command line -------
 i = 0
+repl_flag = true
 nexta = ->
 	i += 1
 	arg[i]
+
+mesg = ->
+	io.write 'Usage: moonr [options]\n\n',
+		'   -h         print this message\n',
+		'   -n         continue running REPL after "e" or "l" option executution completed\n',
+		'   -e string  execute string as MoonScript code\n',
+		'   -l lib     load library before run moonr REPL\n\n'
+	os.exit 1
+
 
 while true
 	a = nexta!
@@ -182,54 +197,60 @@ while true
 	if flag == 'l'
 		lib = (rest and #rest > 0) and rest or nexta!
 		require lib
+	elseif flag == 'n'
+		repl_flag = true
 	elseif flag == 'e'
-		eval_moon nexta!
-		os.exit!
+		ok, err = pcall eval_moon, nexta!
+		unless ok
+			print err
+			mesg!
+		os.exit! if not repl_flag
 	else
-		print "Usage: moonr[options] \n\n    -e string  execute string as MoonScript code\n    -l lib     load library before run moonr REPL\n"
-		os.exit!
+		mesg!
 
+
+---- start REPL ----
+print "moor on MoonScript version " .. (require "moonscript.version").version .. " on " .. _VERSION
 
 mytostring = dump
 _G.tstring = mytostring
 
 prompt = '> '
-indent = ""
+indent = ''
 local get_line
 
-if ok
-	linenoise.setcompletion completion_handler
-	addhistory = linenoise.addhistory or linenoise.historyadd
-	get_line = ->
-		line = linenoise.linenoise prompt .. indent
-		if line and line\match '%S'
-			addhistory line
-		line
-else
-	get_line = ->
-		io.write prompt .. indent
-		io.read!
+linenoise.setcompletion completion_handler
+addhistory = linenoise.addhistory or linenoise.historyadd
+get_line = ->
+	line = linenoise.linenoise prompt .. indent
+	if line and line\match '%S'
+		addhistory line
+	line
 
-
-rex = require "rex_posix"
 
 is_blockstart = (line) ->
-	return rex.match line, "for|while|repeat|if|elseif|class|[=-]>"
-
+	if line\match 'for%s'
+		return not line\match '[%[{].-[(for)(while)].-[%]}]'
+	elseif is_match = line\match '%[(class)(switch)%]%s'
+		return is_match
+	elseif is_match = line\match 'else$'
+		return is_match
+	elseif line\match 'if%s'
+		return not line\match 'if%s.-then'
+	elseif is_match = line\match '[=-]>$'
+		return is_match
 
 while true
 	line = get_line!
-	if not line then break
-	-- a line ending with a tab or a backslash starts a block
+	unless line then break
 	if is_blockstart line
 		code = {line}
-		indent ..= " "
+		indent ..= ' '
 		line = get_line!
 		while #line > 0
 			append code, indent .. line
 			line = get_line!
 		code = table.concat code, '\n'
-		prompt = '> '
 		indent = ''
 		eval_moon code
 	elseif line\match '^%?que'
