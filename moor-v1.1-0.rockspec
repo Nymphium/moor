@@ -2,7 +2,7 @@ package = "moor"
 version = "v1.1-0"
 source = {
    url = "git://github.com/Nymphium/moor",
-   tag = "vv1.1"
+   tag = "v1.1"
 }
 description = {
    summary = "MoonScript REPL",
