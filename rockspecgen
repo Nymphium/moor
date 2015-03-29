@@ -9,6 +9,6 @@ luarocks write_rockspec moor "${ver}" . \
 	--homepage="https://github.com/Nymphium/moor" \
 	--lua-version=5.2 \
 	--url="git://github.com/Nymphium/moor" \
-	--tag="v${ver}" \
+	--tag="${ver}" \
 	--subver="${2}"
 

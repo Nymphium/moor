@@ -6,7 +6,8 @@ parse = require "moonscript.parse"
 compile = require "moonscript.compile"
 linenoise = require 'linenoise'
 typedet = (obj, typ) -> (type obj) == typ
-import insert from table
+-- import insert from table
+insert = (t, pos) -> t[#t + 1] = pos
 
 ------- a useful table dumper ------
 
@@ -112,8 +113,6 @@ newglobs = ->
 chopline = (txt) -> txt\gsub '^[^\n]+\n', '', 1
 firstline = (txt) -> txt\match '^[^\n]*'
 
-mytostring = tostring
-
 capture = (ok, ...) ->
 	t = {...}
 	t.n = select '#', ...
@@ -131,7 +130,7 @@ eval_lua = (lua_code) ->
 	elseif #res > 0
 		-- this allows for overriding basic value printing
 		_G._l = res[1] -- save last value calculated
-		out = [mytostring res[i] for i = 1, res.n]
+		out = [dump res[i] for i = 1, res.n]
 		io.write table.concat(out, '\t'), '\n'
 
 old_lua_code = nil
@@ -205,8 +204,6 @@ while true
 ---- start REPL ----
 print "moor on MoonScript version " .. (require "moonscript.version").version .. " on " .. _VERSION
 
-mytostring = dump
-_G.tstring = mytostring
 prompt, indent = '> ', ''
 
 linenoise.setcompletion completion_handler
