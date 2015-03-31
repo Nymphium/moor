@@ -141,11 +141,13 @@ eval_moon = (moon_code) ->
 	locs = 'local '..table.concat(newglobs!, ', ')
 	moon_code = locs..'\n'..moon_code
 	tree, err = parse.string moon_code
-	if not tree
+	-- if not tree
+	unless tree
 		print err
 		return
 	lua_code, err, pos = compile.tree tree
-	if not lua_code
+	-- if not lua_code
+	unless lua_code
 		print compile.format_error err, pos, moon_code
 		return
 	-- our code is ready
@@ -176,9 +178,9 @@ mesg = ->
 		'Usage: moonr [options]\n',
 		'\n',
 		'   -h         print this message\n',
-		'   -n         continue running REPL after "e" or "l" option executution completed\n',
-		'   -e string  execute string as MoonScript code\n',
-		'   -l lib     load library before run moonr REPL\n\n'
+		'   -n         continue running REPL after "e" or "l" option completed\n',
+		'   -e STR     execute string as MoonScript code\n',
+		'   -l LIB     load library before run REPL\n\n'
 	os.exit 1
 
 
@@ -215,26 +217,26 @@ get_line = ->
 	line
 
 
+rex = require "rex_posix"
 is_blockstart = (line) ->
-	if line\match 'for%s'
-		return not line\match '[%[{].-[(for)(while)].-[%]}]'
-	elseif is_match = line\match '%[(class)(switch)(when)%]%s'
-		return is_match
-	elseif is_match = line\match 'else$'
-		return is_match
-	elseif line\match '[((else)?if)(unless)]%s'
-		return not line\match '[((else)?if)(unless)]%s.-then'
-	elseif is_match = line\match '[=-]>$'
-		return is_match
+	h, b = line\match '([^%[]-%s?)(for%s).*'
+	if b and #b > 0 then #h < 1
+	elseif rex.match(line, '\\bclass|switch|when\\b') then true
+	elseif rex.match(line, '(do|else)$') then true
+	elseif rex.match(line, '\\b((else)?if|unless)') and not rex.match(line, '.-\\bthen\\b') then true
+	else rex.match(line, '[=-]>$')
+
+
 
 while true
 	line = get_line!
 	unless line then break
+	if #line < 1 then continue
 	if is_blockstart line
-		code = {line}
+		code = setmetatable({line}, __mode: 'k')
 		indent ..= ' '
 		line = get_line!
-		while #line > 0
+		while line and #line > 0
 			insert code, indent .. line
 			line = get_line!
 		code = table.concat code, '\n'
