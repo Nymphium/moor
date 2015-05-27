@@ -6,7 +6,7 @@ MoonScript REPL based on [mooni](https://github.com/leafo/moonscript/wiki/Moonsc
 ## Demo
 ```
 $ moor
-moor on MoonScript version 0.3.1 on Lua 5.2
+moor on MoonScript version 0.3.1 on Lua 5.3
 > for i in *{1,2,3}
 >  for j in *{4,5,6}
 >   print j
@@ -25,9 +25,6 @@ moor on MoonScript version 0.3.1 on Lua 5.2
 6
 3
 > class Cls
->  :a
->  :b
->  :c
 >  new: =>
 >   @a = 1
 >   @b = 2
