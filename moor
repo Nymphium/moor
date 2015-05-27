@@ -168,17 +168,17 @@ eval_moon = (moon_code) ->
 
 
 ---- parsing command line -------
-cnt, repl_flag = 0
+cnt, repl_flag, earg = 0
 nexta = ->
 	cnt += 1
 	arg[cnt]
 
-mesg = ->
+msg = ->
 	io.write '',
 		'Usage: moonr [options]\n',
 		'\n',
 		'   -h         print this message\n',
-		'   -n         continue running REPL after "e" or "l" option completed\n',
+		'   -n         continue running REPL after "e" option completed\n',
 		'   -e STR     execute string as MoonScript code\n',
 		'   -l LIB     load library before run REPL\n\n'
 	os.exit 1
@@ -189,22 +189,25 @@ while true
 	break unless a
 	flag, rest = a\match '^%-(%a)(%S*)'
 	if flag == 'l'
-		lib = (rest and #rest > 0) and rest or nexta!
-		require lib
+		ok, err = pcall require, #rest > 0 and rest or nexta!
+		unless ok
+			print err, "\n"
+			msg!
 	elseif flag == 'n'
 		repl_flag = true
 	elseif flag == 'e'
+		earg = true
 		ok, err = pcall eval_moon, nexta!
 		unless ok
 			print err
-			mesg!
-		unless repl_flag then os.exit!
+			msg!
 	else
-		mesg!
+		msg!
 
+if not repl_flag and earg then os.exit!
 
 ---- start REPL ----
-print "moor on MoonScript version " .. (require "moonscript.version").version .. " on " .. _VERSION
+unless earg then print "moor on MoonScript version " .. (require "moonscript.version").version .. " on " .. _VERSION
 
 prompt, indent = '> ', ''
 
@@ -216,17 +219,17 @@ get_line = ->
 		linenoise.historyadd line
 	line
 
-
 rex = require "rex_posix"
+
 is_blockstart = (line) ->
 	h, b = line\match '([^%[]-%s?)(for%s).*'
-	if b and #b > 0 then #h < 1
-	elseif rex.match(line, '\\bclass|switch|when\\b') then true
-	elseif rex.match(line, '(do|else)$') then true
-	elseif rex.match(line, '\\b((else)?if|unless)') and not rex.match(line, '.-\\bthen\\b') then true
-	else rex.match(line, '[=-]>$')
-
-
+	if b and #b > 0
+		#h < 1
+	else
+		rex.match(line, '\\b(class|switch|when|while)\\b') or
+		rex.match(line, '\\b(do|else)\\b$') or
+		rex.match(line, '\\b((else)?if|unless)\\b') and not rex.match(line, '.-\\bthen\\b') or
+		rex.match(line, "[=-]>$")
 
 while true
 	line = get_line!
