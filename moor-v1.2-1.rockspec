@@ -13,7 +13,8 @@ description = {
 dependencies = {
    "lua >= 5.2",
    "moonscript >= 0.3.1",
-   "linenoise >= 0.7"
+   "linenoise >= 0.7",
+   "lrexlib-posix"
 }
 build = {
    type = "builtin",
