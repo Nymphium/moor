@@ -1,8 +1,8 @@
 package = "moor"
-version = "v1.2-1"
+version = "v2.0-1"
 source = {
    url = "git://github.com/Nymphium/moor",
-   tag = "v1.2"
+   tag = "v2.1"
 }
 description = {
    summary = "MoonScript REPL",
@@ -18,7 +18,10 @@ dependencies = {
 }
 build = {
    type = "builtin",
-   modules = {},
-   install = {bin = {"moor"}}
+   modules = {
+	   ["moor.init"] = "moor/init.lua"
+   },
+   install = {
+	   bin= {"bin/moor"}
+   }
 }
-

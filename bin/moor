@@ -1,0 +1,3 @@
+#!/bin//env moon
+require"moor" arg
+
