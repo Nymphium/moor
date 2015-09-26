@@ -3,67 +3,9 @@ repl = (args, env = _ENV) ->
 	parse = require "moonscript.parse"
 	compile = require "moonscript.compile"
 	linenoise = require 'linenoise'
+	inspect = require'inspect'
 	typedet = (obj, typ) -> (type obj) == typ
 	import insert from table
-	-- insert = (t, pos) -> t[#t + 1] = pos
-
-	------- a useful table dumper ------
-
-	quote  = (v) ->
-		if typedet(v, 'string')
-			'%q'\format v
-		else
-			tostring v
-
-	dump = (t, options) ->
-		options = options or {}
-		limit = options.limit or 1000
-		buff = tables:{[t]:true}
-		k, tbuff = 1, nil
-
-		put = (v) ->
-			buff[k] = v
-			k += 1
-
-		put_value = (value) ->
-			unless typedet(value, 'table')
-				put quote value
-				if limit and k > limit
-					buff[k] = '...'
-					error 'buffer overrun'
-			else
-				unless buff.tables[value] -- cycle detection
-					buff.tables[value] = true
-					tbuff value
-				else
-					put '<cycle>'
-			put ', '
-
-		tbuff = (t) ->
-			mt = getmetatable t unless options.raw
-			if not typedet(t, 'table') or mt and mt.__tostring
-				put quote t
-			else
-				put '{'
-				indices = #t > 0 and {i, true for i = 1, #t}
-				for key, value in pairs t -- first do the hash part
-					continue if indices and indices[key]
-
-					if not typedet(key, 'string')
-						key = '[' .. tostring key .. ']'
-					elseif key\match '%s'
-						key = quote key
-					put key .. ':'
-					put_value value
-				if indices -- then bang out the array part
-					for v in *t do put_value v
-				if buff[k - 1] == ', ' then k -= 1
-				put '}'
-
-		-- we pcall because that's the easiest way to bail out if there's an overrun.
-		pcall tbuff, t
-		table.concat buff
-
 
 	---- tab-completion logic from luaish ------------
 	lua_candidates = (line) ->
@@ -127,7 +69,8 @@ repl = (args, env = _ENV) ->
 		elseif #res > 0
 			-- this allows for overriding basic value printing
 			env._l = res[1] -- save last value calculated
-			out = [dump res[i] for i = 1, res.n]
+			-- out = [dump res[i] for i = 1, res.n]
+			out = [inspect res[i] for i = 1, res.n]
 			io.write table.concat(out, '\t'), '\n'
 
 	old_lua_code = nil
@@ -238,7 +181,7 @@ repl = (args, env = _ENV) ->
 			line\match'[=-]>$' or
 			line\match'%s*\\%s*$'
 
-	env.moor = :dump
+	env.moor = :inspect
 
 	while true
 		line = get_line!

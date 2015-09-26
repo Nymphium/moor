@@ -1,109 +1,18 @@
 local repl
 repl = function(args, env)
   if env == nil then
-    env = _G
+    env = _ENV
   end
   local parse = require("moonscript.parse")
   local compile = require("moonscript.compile")
   local linenoise = require('linenoise')
+  local inspect = require('inspect')
   local typedet
   typedet = function(obj, typ)
     return (type(obj)) == typ
   end
   local insert
   insert = table.insert
-  local quote
-  quote = function(v)
-    if typedet(v, 'string') then
-      return ('%q'):format(v)
-    else
-      return tostring(v)
-    end
-  end
-  local dump
-  dump = function(t, options)
-    options = options or { }
-    local limit = options.limit or 1000
-    local buff = {
-      tables = {
-        [t] = true
-      }
-    }
-    local k, tbuff = 1, nil
-    local put
-    put = function(v)
-      buff[k] = v
-      k = k + 1
-    end
-    local put_value
-    put_value = function(value)
-      if not (typedet(value, 'table')) then
-        put(quote(value))
-        if limit and k > limit then
-          buff[k] = '...'
-          error('buffer overrun')
-        end
-      else
-        if not (buff.tables[value]) then
-          buff.tables[value] = true
-          tbuff(value)
-        else
-          put('<cycle>')
-        end
-      end
-      return put(', ')
-    end
-    tbuff = function(t)
-      local mt
-      if not (options.raw) then
-        mt = getmetatable(t)
-      end
-      if not typedet(t, 'table') or mt and mt.__tostring then
-        return put(quote(t))
-      else
-        put('{')
-        local indices = #t > 0 and (function()
-          local _tbl_0 = { }
-          for i = 1, #t do
-            _tbl_0[i] = true
-          end
-          return _tbl_0
-        end)()
-        for key, value in pairs(t) do
-          local _continue_0 = false
-          repeat
-            if indices and indices[key] then
-              _continue_0 = true
-              break
-            end
-            if not typedet(key, 'string') then
-              key = '[' .. tostring(key .. ']')
-            elseif key:match('%s') then
-              key = quote(key)
-            end
-            put(key .. ':')
-            put_value(value)
-            _continue_0 = true
-          until true
-          if not _continue_0 then
-            break
-          end
-        end
-        if indices then
-          for _index_0 = 1, #t do
-            local v = t[_index_0]
-            put_value(v)
-          end
-        end
-        if buff[k - 1] == ', ' then
-          k = k - 1
-        end
-        return put('}')
-      end
-    end
-    pcall(tbuff, t)
-    return table.concat(buff)
-  end
   local lua_candidates
   lua_candidates = function(line)
     local i1 = line:find('[.\\%w_]+$')
@@ -215,7 +124,7 @@ repl = function(args, env)
         local _accum_0 = { }
         local _len_0 = 1
         for i = 1, res.n do
-          _accum_0[_len_0] = dump(res[i])
+          _accum_0[_len_0] = inspect(res[i])
           _len_0 = _len_0 + 1
         end
         out = _accum_0
@@ -324,9 +233,6 @@ repl = function(args, env)
       return rex.match(line, '\\b(class|switch|when|while)\\b') or rex.match(line, '\\b(do)\\b$') or rex.match(line, '\\b((else)?if|unless)\\b') and not rex.match(line, '.-\\bthen\\b') or line:match('[=-]>$') or line:match('%s*\\%s*$')
     end
   end
-  env.moor = {
-    dump = dump
-  }
   while true do
     local line = get_line()
     if not line then

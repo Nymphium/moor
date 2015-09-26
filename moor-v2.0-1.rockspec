@@ -14,14 +14,10 @@ dependencies = {
    "lua >= 5.2",
    "moonscript >= 0.3.1",
    "linenoise >= 0.7",
-   "lrexlib-posix"
+   "lrexlib-posix",
+   "inspect"
 }
 build = {
-   type = "builtin",
-   modules = {
-	   ["moor.init"] = "moor/init.lua"
-   },
-   install = {
-	   bin= {"bin/moor"}
-   }
+   type = "make"
 }
+
