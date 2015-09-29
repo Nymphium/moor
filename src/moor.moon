@@ -5,37 +5,45 @@ repl = (args, env = _ENV) ->
 	linenoise = require 'linenoise'
 	inspect = require'inspect'
 	typedet = (obj, typ) -> (type obj) == typ
-	import insert from table
+	import insert, concat from table
 
 	---- tab-completion logic from luaish ------------
 	lua_candidates = (line) ->
 	  -- identify the expression!
 		i1 = line\find '[.\\%w_]+$'
-		unless i1 then return
+
+		return unless i1
+
 		front = line\sub(1, i1 - 1)
 		partial = line\sub i1
 		res = {}
 		prefix, last = partial\match '(.-)([^.\\]*)$'
 		t, all = env
+
 		if #prefix > 0
 			P = prefix\sub(1, -2)
 			all = last == ''
 
 			for w in P\gmatch '[^.\\]+'
 				t = t[w]
-				unless t then return
+
+				return unless t
 
 		prefix = front .. prefix
 
-		append_candidates = (t) -> for k in pairs t do if all or k\sub(1, #last) == last then insert(res, prefix .. k)
+		append_candidates = (t) -> for k in pairs t do insert(res, prefix..k) if all or k\sub(1, #last) == last
 
-		if typedet(t, 'table') then append_candidates t
+		append_candidates t if typedet(t, 'table')
+
 		mt = getmetatable t
-		if mt and typedet(mt.__index, 'table') then append_candidates mt.__index
+
+		append_candidates mt.__index if mt and typedet(mt.__index, 'table')
+
 		res
 
 	completion_handler = (c, s) ->
 		cc = lua_candidates s
+
 		if cc then for name in *cc do linenoise.addcompletion c, name
 
 	-- need to keep track of what globals have been added during the session
@@ -45,65 +53,78 @@ repl = (args, env = _ENV) ->
 	newglobs = ->
 		ret = [k for k in pairs env when not oldg[k]]
 		singularity = "true"
-		if #ret < 1 then insert(ret, singularity)
+
+		insert(ret, singularity) if #ret < 1
+
 		ret
 
-
-	chopline = (txt) -> txt\gsub '^[^\n]+\n', '', 1
-	firstline = (txt) -> txt\match '^[^\n]*'
+	chopline = (txt) -> txt\gsub('^[^\n]+\n', '', 1)
+	firstline = (txt) -> txt\match'^[^\n]*'
 
 	capture = (ok, ...) ->
 		t = {...}
-		t.n = select '#', ...
+		t.n = select('#', ...)
+
 		ok, t
 
 	eval_lua = (lua_code) ->
-		chunk, err = loadstring lua_code, 'tmp'
+		chunk, err = loadstring(lua_code, 'tmp')
+
 		if err -- Lua compile error is rare!
 			print err
 			return
+
 		ok, res = capture pcall chunk
+
 		if not ok -- runtime error
 			print res[1]
 			return
 		elseif #res > 0
 			-- this allows for overriding basic value printing
 			env._l = res[1] -- save last value calculated
-			-- out = [dump res[i] for i = 1, res.n]
 			out = [inspect res[i] for i = 1, res.n]
-			io.write table.concat(out, '\t'), '\n'
+
+			io.write(concat(out, '\t'), '\n')
 
 	old_lua_code = nil
 
 	eval_moon = (moon_code) ->
 		-- Ugly fiddle #2: we force Moonscript code to regard
 		-- any _new_ globals as known globals
-		locs = 'local '..table.concat(newglobs!, ', ')
+		ngl = newglobs!
+		locs = type(ngl) != "table" and 'local '..concat(ngl, ', ') or "return nil"
 		moon_code = locs..'\n'..moon_code
 		tree, err = parse.string moon_code
-		-- if not tree
+
 		unless tree
 			print err
 			return
+
 		lua_code, err, pos = compile.tree tree
-		-- if not lua_code
+
 		unless lua_code
-			print compile.format_error err, pos, moon_code
+			print(compile.format_error err, pos, moon_code)
 			return
+
 		-- our code is ready
 		-- Fiddle #2 requires us to lose the top local declarations we inserted
 		lua_code = chopline lua_code
+
 		-- Fiddle #1 Moonscript will of course declare any new variables
 		-- as local. This fiddle removes the 'local'
 		was_local, rest = lua_code\match '^local (%S+)(.+)'
+
 		if was_local
-			if rest\match '\n' then rest = firstline rest
+			rest = firstline rest if rest\match '\n'
+
 			-- two cases; either a direct local assignmnent or a declaration line
 			if rest\match '='
 				lua_code = lua_code\gsub '^local%s+', ''
 			else
 				lua_code = chopline lua_code
+
 		old_lua_code = lua_code
+
 		eval_lua lua_code
 
 	---- parsing command line -------
@@ -111,9 +132,7 @@ repl = (args, env = _ENV) ->
 		cnt, repl_flag, earg, oneshot = 0
 
 		nexta = ->
-			cnt += 1
-
-			args[cnt]
+			table.remove args, 1
 
 		msg = ->
 			io.write 'Usage: moonr [options]\n',
@@ -121,13 +140,16 @@ repl = (args, env = _ENV) ->
 				'   -h         print this message\n',
 				'   -n         continue running REPL after "e" option completed\n',
 				'   -e STR     execute string as MoonScript code\n',
-				'   -l LIB     load library before run REPL\n\n'
+				'   -l LIB     load library before run REPL\n',
+				'   -L LIB     execute `LIB = require"LIB"` before run REPL\n\n'
 
 			os.exit 1
 
 		while true
 			a = nexta!
+
 			break unless a
+
 			flag, rest = a\match '^%-(%a)(%S*)'
 
 			switch flag
@@ -136,12 +158,20 @@ repl = (args, env = _ENV) ->
 					unless ok
 						print err, '\n'
 						msg!
+				when 'L'
+					lib = #rest > 0 and rest or nexta!
+					ok, cont = pcall require, lib
+					unless ok
+						print cont, '\n'
+						msg!
+					else
+						env[rest] = cont
 				when 'n'
 					repl_flag = true
 				when 'e'
 					earg = true
 					oneshot = true
-					ok, err = pcall eval_moon, nexta!
+					ok, err = pcall eval_moon, (#rest > 0 and rest or nexta!)
 					unless ok
 						print err
 						msg!
@@ -153,7 +183,7 @@ repl = (args, env = _ENV) ->
 		repl_flag or not oneshot
 
 	if args
-		os.exit! if not cmdop args
+		os.exit! unless cmdop args
 
 	---- repl function
 	linenoise.setcompletion completion_handler
@@ -162,7 +192,7 @@ repl = (args, env = _ENV) ->
 	indent, rex = '', require'rex_posix'
 
 	get_line = ->
-		line = linenoise.linenoise prompt .. indent
+		line = linenoise.linenoise prompt
 
 		if line and line\match '%S'
 			linenoise.historyadd line
@@ -181,8 +211,6 @@ repl = (args, env = _ENV) ->
 			line\match'[=-]>$' or
 			line\match'%s*\\%s*$'
 
-	env.moor = :inspect
-
 	while true
 		line = get_line!
 
@@ -190,21 +218,20 @@ repl = (args, env = _ENV) ->
 
 		if is_blockstart line
 			line = line\match"^(.-)%s*\\?%s*$"
-			code = setmetatable {line}, __mode: 'k'
+			code = setmetatable({line}, __mode: 'k')
 			indent ..= ' '
 			line = get_line!
 
 			while line and #line > 0
-				insert code, indent .. line
+				insert(code, indent .. line)
 
 				line = get_line!
 
-			code = table.concat code, '\n'
+			code = concat(code, '\n')
 			indent = ''
 
 			eval_moon code
-
-		elseif line\match '^%?que'
+		elseif line\match'^%?que'
 			print old_lua_code
 		else
 			eval_moon line

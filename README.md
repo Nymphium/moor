@@ -30,8 +30,21 @@ moor on MoonScript version 0.3.1 on Lua 5.3
 >   @b = 2
 >   @c = 3
 >
-{[__base]:{[__class]:<cycle>, [__index]:<cycle>}, [__name]:"Cls", [__init]:function: 0x1e39f70}
+<1>{
+  __base = <2>{
+    __class = <table 1>,
+    __index = <table 2>
+  },
+  __init = <function 1>,
+  __name = "Cls",
+  <metatable> = {
+    __call = <function 2>,
+    __index = <table 2>
+  }
+}
 ```
+
+yes, dump objects with [inspect](https://github.com/kikito/inspect.lua).
 
 ## Issue
 a lot of. `is_blockstart` function is so bad...
