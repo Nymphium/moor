@@ -129,7 +129,7 @@ repl = (args, env = _ENV) ->
 
 	---- parsing command line -------
 	cmdop = (args) ->
-		cnt, repl_flag, earg, oneshot = 0
+		local repl_flag, earg, oneshot
 
 		nexta = ->
 			table.remove args, 1
@@ -191,8 +191,8 @@ repl = (args, env = _ENV) ->
 	prompt = '> '
 	indent, rex = '', require'rex_posix'
 
-	get_line = ->
-		line = linenoise.linenoise prompt
+	get_line = (prm = prompt, idt = indent) ->
+		line = linenoise.linenoise prm .. idt
 
 		if line and line\match '%S'
 			linenoise.historyadd line
@@ -208,6 +208,7 @@ repl = (args, env = _ENV) ->
 			rex.match(line, '\\b(class|switch|when|while)\\b') or
 			rex.match(line, '\\b(do)\\b$') or
 			rex.match(line, '\\b((else)?if|unless)\\b') and not rex.match(line, '.-\\bthen\\b') or
+			line\match"%s*with%s" or
 			line\match'[=-]>$' or
 			line\match'%s*\\%s*$'
 
@@ -218,14 +219,13 @@ repl = (args, env = _ENV) ->
 
 		if is_blockstart line
 			line = line\match"^(.-)%s*\\?%s*$"
-			code = setmetatable({line}, __mode: 'k')
+			code = setmetatable({line}, __mode: 'kv')
 			indent ..= ' '
-			line = get_line!
+			line = get_line '?', indent..' '
 
 			while line and #line > 0
 				insert(code, indent .. line)
-
-				line = get_line!
+				line = get_line '?', indent..' '
 
 			code = concat(code, '\n')
 			indent = ''
