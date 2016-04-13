@@ -5,9 +5,7 @@ ver=${1}
 luarocks write_rockspec moor "${ver}" . \
 	--license="MIT" \
 	--summary="MoonScript REPL" \
-	--detailed="MoonScript REPL based on [mooni](https://github.com/leafo/moonscript/wiki/Moonscriptrepl)" \
 	--homepage="https://github.com/Nymphium/moor" \
-	# --url="git://github.com/Nymphium/moor" \
-	--tag="${ver}" \
-	--subver="${2}"
+	. \
+	"git://github.com/Nymphium/moor"
 
