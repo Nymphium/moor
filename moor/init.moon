@@ -15,15 +15,13 @@ prompt =
 to_lua = (code) ->
 	tree, err = parse.string code
 
-	if err
-		nil, err
-	else
-		lua_code, err, pos = compile.tree tree
+	return nil, err if err
 
-		unless lua_code
-			nil, compile.format_error err, pos, code
-		else
-			lua_code
+	lua_code, err, pos = compile.tree tree
+
+	unless lua_code
+		nil, compile.format_error err, pos, code
+	else lua_code
 
 -- Lua evaluator & printer
 fnwrap = (code) -> "return function(__newenv) local _ENV = setmetatable(__newenv, {__index = _ENV}) #{code} end"
@@ -32,30 +30,31 @@ evalprint = (env, lua_code) ->
 	is_mod = true
 
 	lua_code = if vardec = lua_code\match"^local%s+(.*)$"
-		if exportFnCl = vardec\match "^%w+%s+(.*)$"
-			fnwrap exportFnCl
+			if exportFnCl = vardec\match "^%w+%s+(.*)$"
+				if exportFnCl\match "^="
+					fnwrap "#{lua_code\match"local%s+(%w+)"} #{exportFnCl}"
+				else fnwrap exportFnCl
+			else fnwrap vardec
+		elseif lua_code\match"^return%s+%(?%s*%w+%s*%)?"
+			fnwrap lua_code
 		else
-			fnwrap vardec
-	elseif lua_code\match"^return%s+%(?%s*%w+%s*%)?"
-		fnwrap lua_code
-	else
-		is_mod = false
-		lua_code
+			is_mod = false
+			lua_code
 
 	luafn, err = loadstring lua_code, "tmp"
 
-	if err then printerr err
+	return printerr err if err
+
+	if is_mod then luafn = luafn()
+	result = {pcall luafn, env}
+
+	ok = remove result, 1
+
+	unless ok then printerr result[1]
 	else
-		if is_mod then luafn = luafn()
-		result = {pcall luafn, env}
-
-		ok = remove result, 1
-
-		unless ok then printerr result[1]
-		else
-			if #result > 0
-				print (inspect result)\match"^%s*{%s*(.*)%s*}%s*%n?%s*$"
-				unpack result
+		if #result > 0
+			print (inspect result)\match"^%s*{%s*(.*)%s*}%s*%n?%s*$"
+			unpack result
 
 ---- tab completion
 cndgen = (env) ->  (line) ->
@@ -91,6 +90,13 @@ compgen = (env) ->
 	(c, s) -> if cc = candidates s
 		ln.addcompletion c, name for name in *cc
 
+string.match_if_fncls = =>
+	@\match"[-=]>$" or
+	@\match"class%s*$" or
+	@\match"class%s+%w+$%s*" or
+	@\match"class%s+extends%s+%w+%s*$" or
+	@\match"class%s+%w+%s+extends%s+%w+%s*$"
+
 -- main repl
 repl = (env = {}, _ENV = _ENV) ->
 	block = {}
@@ -107,16 +113,18 @@ repl = (env = {}, _ENV = _ENV) ->
 		unless line then break
 		elseif #line < 1 then continue
 
-		if line\match"^:"
-			(require'moor.replcmd') line
-			continue
+		-- if line\match"^:"
+			-- (require'moor.replcmd') line
+			-- continue
 
-		-- continue `->` or `class .....`
-		lua_code, err = to_lua line
+		is_fncls, lua_code, err =  if line\match_if_fncls!
+			true
+		else
+			false, to_lua line
 
 		if lua_code and not err
 			evalprint env, lua_code
-		elseif err\match "^Failed to parse"
+		elseif is_fncls or err\match "^Failed to parse"
 			insert block, line
 
 			prompt.reset with prompt

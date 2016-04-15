@@ -1,0 +1,1 @@
+describe "moor.opt module", ->
