@@ -7,21 +7,23 @@ PATCH = patch.sh
 BUSTED = busted
 CD = cd
 CP = cp
+ECHO = echo
 LUAROCKS = luarocks
+MAKE = make
 MKDIR = mkdir
 MOONC = moonc
 RM = rm
 SED = sed
 WC = wc
 
-LUA_PATH_MAKE = $(shell $(LUAROCKS) path --lr-path | $(SED) -e "s/?.*//");./?.lua;./?/init.lua
+LUA_PATH_MAKE = $(shell $(LUAROCKS) path --lr-path | $(SED) -e "s/?.*//")
 LUA_BIN_MAKE = $(shell $(LUAROCKS) path --lr-bin | $(SED) -e "s/:.*//")
 
 .PHONY: install compile luarocks-make test test-list watch clean lines
 
 test: spec-patch
 	#) '---test--'
-	$(BUSTED) --verbose --keep-going
+	@LUA_PATH="$${LUA_PATH};./init.lua" $(BUSTED) --verbose --keep-going
 
 install: compile
 	#) '--install--'
@@ -31,7 +33,7 @@ install: compile
 
 luarocks-make:
 	#) '--luarocks-make--'
-	$(LUAROCKS) --local make moor-v3.0-1.rockspec
+	$(LUAROCKS) --local make
 
 compile:
 	#) '--compile--'
@@ -43,7 +45,7 @@ spec-patch:
 
 test-list:
 	#) '---test-list--'
-	@$(BUSTED) --list
+	@LUA_PATH="$${LUA_PATH};./init.lua" $(BUSTED) --list
 
 watch:
 	#) '--watch--'
@@ -58,3 +60,6 @@ lines:
 	#) '--lines--'
 	$(WC) -l */*.moon $(BIN_DIR)/$(MOOR)
 
+travis-ci:
+	$(ECHO) $$LUA_PATH
+	$(MAKE) test

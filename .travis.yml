@@ -7,7 +7,7 @@ env:
     - LUAROCKS=2.2.2
   matrix:
     - LUA=lua5.1
-    - LUA=lua5.2
+      # - LUA=lua5.2  # alt-getopt to Lua5.2 contains wrong code (`module` is not supported to v5.2!!!!!)
     - LUA=lua5.3
     - LUA=luajit2.1  # current head of 2.1 branch
 
@@ -19,5 +19,5 @@ install:
   - luarocks install loadkit
   - luarocks make
 
-script: make test
+script: make travis-ci
 
