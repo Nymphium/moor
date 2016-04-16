@@ -55,7 +55,7 @@ you can call REPL in your code
 
 ```lua
 ...
-local newenv = (require'moor')({}, _ENV)
+local newenv = (require'moor.repl')({}, _ENV)
 local hoge = newenv.foo
 ...
 

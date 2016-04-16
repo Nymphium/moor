@@ -37,7 +37,7 @@ evalprint = (env, lua_code) ->
 			lua_code = lua_code\gsub "^local%s+", "export" , "1"
 		else lua_code
 
-	luafn, err = loadstring fnwrap(lua_code), "tmp"
+	luafn, err = load fnwrap(lua_code), "tmp"
 
 	return printerr err if err
 
@@ -49,7 +49,7 @@ evalprint = (env, lua_code) ->
 	else
 		if #result > 0
 			print (inspect result)\match"^%s*{%s*(.*)%s*}%s*%n?%s*$"
-			unpack result
+			table.unpack result
 
 ---- tab completion
 cndgen = (env) ->  (line) ->

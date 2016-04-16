@@ -1,10 +1,12 @@
+package.path = package.path .. ";./?/init.lua;"
+
 describe "moor module", ->
 	local moor
 	local bkenv
 	local env
 
 	setup ->
-		moor = require'moor'
+		moor = require'moor.repl'
 
 		deepcpy = (t, list = {}) -> with ret = {}
 			for k, v in pairs t
@@ -18,7 +20,10 @@ describe "moor module", ->
 				else ret[k] = v
 
 
-		bkenv =  deepcpy _ENV
+		if _ENV then bkenv =  deepcpy _ENV
+		else _G["_ENV"] = deepcpy _G
+
+		bkenv = deepcpy _ENV
 		env = {}
 
 	it "to_lua test", ->

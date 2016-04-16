@@ -4,30 +4,21 @@ sudo: false
 
 env:
   global:
-    - LUAROCKS = 2.3.0
+    - LUAROCKS=2.2.2
   matrix:
-    - LUA = 5.1
-    - LUA = 5.2
-    - LUA = 5.3
-    - LUA = luajit
-    - LUA = luajit2.0
-    - LUA = luajit2.1
-
-branches:
-  only:
-    - master
-
-branches:
-  only:
-    - master
+    # - LUA=lua5.1
+    - LUA=lua5.2
+    - LUA=lua5.3
 
 before_install:
   - source .travis/setenv_lua.sh
 
 install:
-  - luarocks install busted
+  - luarocks install https://luarocks.org/manifests/olivine-labs/busted-2.0.rc11-0.rockspec
   - luarocks install loadkit
-  - luarocks make
+  - luarocks build https://raw.githubusercontent.com/leafo/moonscript/master/moonscript-dev-1.rockspec
+  - luarocks remove alt-getopt --force
+  - luarocks install https://raw.githubusercontent.com/Nymphium/alt-getopt/master/alt-getopt-0.7.0-1.rockspec
 
-script: make test
+script: make travis-ci
 

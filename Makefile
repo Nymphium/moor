@@ -4,10 +4,14 @@ SPEC_DIR = spec
 BIN_DIR = bin
 PATCH = patch.sh
 
+ROCKSPEC = moor-v3.0-1.rockspec
+
 BUSTED = busted
 CD = cd
 CP = cp
+ECHO = echo
 LUAROCKS = luarocks
+MAKE = make
 MKDIR = mkdir
 MOONC = moonc
 RM = rm
@@ -21,7 +25,7 @@ LUA_BIN_MAKE = $(shell $(LUAROCKS) path --lr-bin | $(SED) -e "s/:.*//")
 
 test: spec-patch
 	#) '---test--'
-	$(BUSTED) --verbose --keep-going
+	@$(BUSTED) --verbose --keep-going
 
 install: compile
 	#) '--install--'
@@ -31,7 +35,7 @@ install: compile
 
 luarocks-make:
 	#) '--luarocks-make--'
-	$(LUAROCKS) --local make moor-v3.0-1.rockspec
+	$(LUAROCKS) --local make
 
 compile:
 	#) '--compile--'
@@ -58,3 +62,7 @@ lines:
 	#) '--lines--'
 	$(WC) -l */*.moon $(BIN_DIR)/$(MOOR)
 
+travis-ci:
+	#) '--travis-ci--'
+	$(LUAROCKS) build $(ROCKSPEC) --only-deps
+	$(MAKE) test
