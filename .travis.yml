@@ -7,8 +7,8 @@ env:
     - LUAROCKS=2.2.2
   matrix:
     - LUA=lua5.1
-    # - LUA=lua5.2 # fuck 'module' function in alt_getopt
-    # - LUA=lua5.3
+    - LUA=lua5.2
+    - LUA=lua5.3
 
 before_install:
   - source .travis/setenv_lua.sh
@@ -17,6 +17,8 @@ install:
   - luarocks install https://luarocks.org/manifests/olivine-labs/busted-2.0.rc11-0.rockspec
   - luarocks install loadkit
   - luarocks build https://raw.githubusercontent.com/leafo/moonscript/master/moonscript-dev-1.rockspec
+  - luarocks remove alt_getopt --force
+  - luarocks install https://raw.githubusercontent.com/Nymphium/alt-getopt/master/alt-getopt-0.7.0-1.rockspec
 
 script: make travis-ci
 
