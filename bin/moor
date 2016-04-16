@@ -4,16 +4,16 @@ env = {}
 _ENV = setmetatable env, __index: _ENV
 
 if (require'moor.opts') env, {k, v for k, v in pairs arg}
-	repl = require'moor'
+	moor = require'moor'
 
 	L = require'linenoise'
 	histfile = os.getenv"HOME" .. "/.moor_history"
 
 	unless L.historyload histfile
-		repl.printerr "failed to load commandline history"
+		moor.printerr "failed to load commandline history"
 
-	repl env, _ENV
+	moor env, _ENV
 
 	unless L.historysave histfile
-		repl.printerr "failed to save commandline history"
+		moor.printerr "failed to save commandline history"
 

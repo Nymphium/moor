@@ -27,26 +27,21 @@ to_lua = (code) ->
 fnwrap = (code) -> "return function(__newenv) local _ENV = setmetatable(__newenv, {__index = _ENV}) #{code} end"
 
 evalprint = (env, lua_code) ->
-	is_mod = true
-
 	lua_code = if vardec = lua_code\match"^local%s+(.*)$"
 			if exportFnCl = vardec\match "^%w+%s+(.*)$"
 				if exportFnCl\match "^="
-					fnwrap "#{lua_code\match"local%s+(%w+)"} #{exportFnCl}"
-				else fnwrap exportFnCl
-			else fnwrap vardec
-		elseif lua_code\match"^return%s+%(?%s*%w+%s*%)?"
-			fnwrap lua_code
-		else
-			is_mod = false
-			lua_code
+					"#{lua_code\match"local%s+(%w+)"} #{exportFnCl}"
+				else exportFnCl
+			else vardec
+		elseif lua_code\match"__class"
+			lua_code = lua_code\gsub "^local%s+", "export" , "1"
+		else lua_code
 
-	luafn, err = loadstring lua_code, "tmp"
+	luafn, err = loadstring fnwrap(lua_code), "tmp"
 
 	return printerr err if err
 
-	if is_mod then luafn = luafn()
-	result = {pcall luafn, env}
+	result = {pcall luafn!, env}
 
 	ok = remove result, 1
 
@@ -93,19 +88,21 @@ compgen = (env) ->
 string.match_if_fncls = =>
 	@\match"[-=]>$" or
 	@\match"class%s*$" or
-	@\match"class%s+%w+$%s*" or
+	@\match"class%s+%w+$" or
 	@\match"class%s+extends%s+%w+%s*$" or
 	@\match"class%s+%w+%s+extends%s+%w+%s*$"
 
--- main repl
-repl = (env = {}, _ENV = _ENV) ->
+-- for busted unit test, repl is sepalated with `get_line` and `replgen`
+-- and using the former for the test, the latter is only needed by `repl`.
+
+get_line = ->
+	with line = ln.linenoise prompt.p .. " "
+		if line and line\match '%S' then ln.historyadd line
+
+replgen = (get_line) -> (env = {}, _ENV = _ENV) ->
 	block = {}
 
 	ln.setcompletion compgen _ENV
-
-	get_line = ->
-		with line = ln.linenoise prompt.p .. " "
-			if line and line\match '%S' then ln.historyadd line
 
 	while true
 		line = get_line!
@@ -144,5 +141,8 @@ repl = (env = {}, _ENV = _ENV) ->
 
 	env
 
-setmetatable {:printerr, :to_lua, :evalprint, :repl}, __call: (env, _ENV) => repl env, _ENV
+-- this is main repl
+repl = replgen get_line
+
+setmetatable {:printerr, :to_lua, :evalprint, :replgen, :repl}, __call: (env, _ENV) => repl env, _ENV
 

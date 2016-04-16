@@ -15,7 +15,8 @@ msg = ->
 		'   -e STR     execute string as MoonScript code and exit\n',
 		'   -E STR     execute string as MoonScript code and run REPL\n',
 		'   -l LIB     load library before running REPL\n',
-		'   -L LIB     execute `LIB = require"LIB"` before running REPL\n'
+		'   -L LIB     execute `LIB = require"LIB"` before running REPL\n',
+		''
 
 	os.exit 1
 
@@ -65,8 +66,10 @@ evalline = (env, line) ->
 			when 'E'
 				is_splash = evalline env, lstuff
 			else
-				printerr "invlid flag: #{flag}"
-				msg!
+				if "#{flag}#{rest}" == "no-splash" then is_splash = false
+				else
+					printerr "invlid flag: #{flag}"
+					msg!
 
 	printerr "moor on MoonScript version #{(require 'moonscript.version').version} on #{_VERSION}" if is_splash
 
