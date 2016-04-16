@@ -4,7 +4,7 @@ describe "moor module", ->
 	local moor
 	local bkenv
 	local env
-	_ENV = _ENV or _G
+	_ENV = _ENV or setmetatable({}, __index: _G)
 
 	setup ->
 		moor = require'moor.repl'

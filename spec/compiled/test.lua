@@ -3,6 +3,9 @@ return describe("moor module", function()
   local moor
   local bkenv
   local env
+  local _ENV = _ENV or setmetatable({ }, {
+    __index = _G
+  })
   setup(function()
     moor = require('moor.repl')
     local deepcpy
