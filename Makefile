@@ -14,7 +14,7 @@ RM = rm
 SED = sed
 WC = wc
 
-LUA_PATH_MAKE = $(shell $(LUAROCKS) path --lr-path | $(SED) -e "s/?.*//")
+LUA_PATH_MAKE = $(shell $(LUAROCKS) path --lr-path | $(SED) -e "s/?.*//");./?.lua;./?/init.lua
 LUA_BIN_MAKE = $(shell $(LUAROCKS) path --lr-bin | $(SED) -e "s/:.*//")
 
 .PHONY: install compile luarocks-make test test-list watch clean lines
