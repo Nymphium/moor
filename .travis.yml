@@ -17,7 +17,8 @@ before_install:
 install:
   - luarocks install https://luarocks.org/manifests/olivine-labs/busted-2.0.rc11-0.rockspec
   - luarocks install loadkit
-  - luarocks remove alt-getopt # wtf
+  - luarocks build https://raw.githubusercontent.com/leafo/moonscript/master/moonscript-dev-1.rockspec
+  - luarocks remove alt-getopt || : # wtf
   - luarocks make
 
 script: make travis-ci
