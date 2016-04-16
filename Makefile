@@ -23,7 +23,7 @@ LUA_BIN_MAKE = $(shell $(LUAROCKS) path --lr-bin | $(SED) -e "s/:.*//")
 
 test: spec-patch
 	#) '---test--'
-	@LUA_PATH="$${LUA_PATH};./init.lua" $(BUSTED) --verbose --keep-going
+	@$(BUSTED) --verbose --keep-going
 
 install: compile
 	#) '--install--'
@@ -45,7 +45,7 @@ spec-patch:
 
 test-list:
 	#) '---test-list--'
-	@LUA_PATH="$${LUA_PATH};./init.lua" $(BUSTED) --list
+	@$(BUSTED) --list
 
 watch:
 	#) '--watch--'
