@@ -6,7 +6,7 @@ describe "moor module", ->
 	local env
 
 	setup ->
-		moor = require'moor'
+		moor = require'moor.repl'
 
 		deepcpy = (t, list = {}) -> with ret = {}
 			for k, v in pairs t

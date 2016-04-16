@@ -1,26 +1,22 @@
 language: c
 
-sudo: required
+sudo: false
 
 env:
   global:
-    # - LUAROCKS=2.2.2
-  # matrix:
-    # - LUA=lua5.1
-    # - LUA=lua5.2
-    - LUA=lua5.3
-    # - LUA=luajit2.1  # current head of 2.1 branch
+    - LUAROCKS=2.2.2
+  matrix:
+    - LUA=lua5.1
+    # - LUA=lua5.2 # fuck 'module' function in alt_getopt
+    # - LUA=lua5.3
 
 before_install:
-  - sudo apt-get install lua53
-  - sudo apt-get install luarocks
   - source .travis/setenv_lua.sh
 
 install:
   - luarocks install https://luarocks.org/manifests/olivine-labs/busted-2.0.rc11-0.rockspec
   - luarocks install loadkit
   - luarocks build https://raw.githubusercontent.com/leafo/moonscript/master/moonscript-dev-1.rockspec
-  - lua -e "print(module)"
 
 script: make travis-ci
 

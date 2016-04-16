@@ -1,4 +1,4 @@
-import printerr, to_lua, evalprint from require'moor'
+import printerr, to_lua, evalprint from require'moor.repl'
 
 eval_moon = (env, txt) ->
 	lua_code, err = to_lua txt

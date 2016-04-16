@@ -1,10 +1,10 @@
-package.path = package.path .. ";;./?/init.lua"
+package.path = package.path .. ";./?/init.lua;"
 return describe("moor module", function()
   local moor
   local bkenv
   local env
   setup(function()
-    moor = require('moor')
+    moor = require('moor.repl')
     local deepcpy
     deepcpy = function(t, list)
       if list == nil then
