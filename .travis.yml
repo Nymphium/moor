@@ -1,17 +1,19 @@
 language: c
 
-sudo: false
+sudo: required
 
 env:
   global:
-    - LUAROCKS=2.2.2
-  matrix:
-    - LUA=lua5.1
+    # - LUAROCKS=2.2.2
+  # matrix:
+    # - LUA=lua5.1
     # - LUA=lua5.2
     - LUA=lua5.3
-    - LUA=luajit2.1  # current head of 2.1 branch
+    # - LUA=luajit2.1  # current head of 2.1 branch
 
 before_install:
+  - sudo apt-get install lua
+  - sudo apt-get install luarocks
   - source .travis/setenv_lua.sh
 
 install:
