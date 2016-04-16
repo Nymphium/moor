@@ -4,6 +4,8 @@ SPEC_DIR = spec
 BIN_DIR = bin
 PATCH = patch.sh
 
+ROCKSPEC = moor-v3.0-1.rockspec
+
 BUSTED = busted
 CD = cd
 CP = cp
@@ -61,5 +63,6 @@ lines:
 	$(WC) -l */*.moon $(BIN_DIR)/$(MOOR)
 
 travis-ci:
-	$(ECHO) $$LUA_PATH
+	#) '--travis-ci--'
+	$(LUAROCKS) build $(ROCKSPEC) --only-deps
 	$(MAKE) test
