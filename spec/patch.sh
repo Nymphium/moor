@@ -1,6 +1,6 @@
 #!/bin/bash
 
-target="test_spec"
+target="init_spec"
 output="compiled/test.lua"
 
 moonc "${target}".moon
