@@ -1,6 +1,6 @@
 #moor
 
-[![Build Status](https://travis-ci.org/nymphium/moor.svg?branch=master)](https://travis-ci.org/nymphium/moor)
+[![Build Status](https://api.travis-ci.org/Nymphium/moor.svg?branch=master)](https://travis-ci.org/Nymphium/moor)
 
 MoonScript REPL
 
