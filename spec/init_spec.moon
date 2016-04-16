@@ -1,4 +1,4 @@
-package.path = package.path .. ";;./?/init.lua"
+package.path = package.path .. ";./?/init.lua;"
 
 describe "moor module", ->
 	local moor
