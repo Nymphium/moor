@@ -12,7 +12,7 @@ env:
     # - LUA=luajit2.1  # current head of 2.1 branch
 
 before_install:
-  - sudo apt-get install lua
+  - sudo apt-get install lua53
   - sudo apt-get install luarocks
   - source .travis/setenv_lua.sh
 
