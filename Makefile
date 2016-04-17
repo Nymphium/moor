@@ -18,8 +18,8 @@ RM = rm
 SED = sed
 WC = wc
 
-LUA_PATH_MAKE = $(shell $(LUAROCKS) path --lr-path | $(SED) -e "s/?.*//")
-LUA_BIN_MAKE = $(shell $(LUAROCKS) path --lr-bin | $(SED) -e "s/:.*//")
+LUA_PATH_MAKE ?= $(shell $(LUAROCKS) path --lr-path | $(SED) -e "s/?.*//")
+LUA_BIN_MAKE  ?= $(shell $(LUAROCKS) path --lr-bin | $(SED) -e "s/:.*//")
 
 .PHONY: install compile luarocks-make test test-list watch clean lines
 
@@ -65,5 +65,5 @@ lines:
 travis-ci:
 	#) '--travis-ci--'
 	$(LUAROCKS) build $(ROCKSPEC) --only-deps
-	$(LUAROCKS) make
-	$(LUA_BIN_MAKE)/$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
+	LUA_PATH_MAKE=install/luarocks LUA_BIN_MAKE=install/luarocks/bin $(LUAROCKS) make
+	install/luarocks/bin/$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'

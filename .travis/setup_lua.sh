@@ -72,7 +72,7 @@ else
   fi
 
   # Build Lua without backwards compatibility for testing
-  perl -i -pe 's/-DLUA_COMPAT_(ALL|5_2)//' src/Makefile
+  perl -i -pe 's/(-DLUA_COMPAT_)(ALL|5_2)/\15_2 \15_3/' src/Makefile
   make $PLATFORM
   make INSTALL_TOP="$LUA_HOME_DIR" install;
 
