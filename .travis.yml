@@ -20,5 +20,7 @@ install:
   - luarocks remove alt-getopt --force
   - luarocks install https://raw.githubusercontent.com/Nymphium/alt-getopt/master/alt-getopt-0.7.0-1.rockspec
 
-script: make travis-ci
+script:
+    which moon
+    # make travis-ci
 
