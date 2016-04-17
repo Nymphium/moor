@@ -4,7 +4,6 @@ describe "moor module", ->
 	local moor
 	local bkenv
 	local env
-	_ENV = _ENV or setmetatable({}, __index: _G)
 
 	setup ->
 		moor = require'moor.repl'
@@ -21,7 +20,10 @@ describe "moor module", ->
 				else ret[k] = v
 
 
-		bkenv =  deepcpy _ENV
+		if _ENV then bkenv =  deepcpy _ENV
+		else _G["_ENV"] = deepcpy _G
+
+		bkenv = deepcpy _ENV
 		env = {}
 
 	it "to_lua test", ->
