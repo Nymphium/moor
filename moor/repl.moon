@@ -49,7 +49,7 @@ evalprint = (env, lua_code) ->
 	else
 		if #result > 0
 			print (inspect result)\match"^%s*{%s*(.*)%s*}%s*%n?%s*$"
-			unpack result
+			table.unpack result
 
 ---- tab completion
 cndgen = (env) ->  (line) ->
