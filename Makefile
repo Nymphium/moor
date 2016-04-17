@@ -65,4 +65,4 @@ lines:
 travis-ci:
 	#) '--travis-ci--'
 	$(LUAROCKS) build $(ROCKSPEC) --only-deps
-	$(MAKE) test
+	$(LUAROCKS) make
