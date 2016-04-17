@@ -1,9 +1,0 @@
--- vim: ft=moon
-REP = 10
-for i = 1, 10 do print i
-
-class Foo
-f: => print @
-
-with Foo!
-\f!

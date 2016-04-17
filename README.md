@@ -61,6 +61,10 @@ local hoge = newenv.foo
 
 ```
 
+## TODO
+- take up local vars when repl called from code
+- unit test for opts
+
 ## License
 [MIT](https://github.com/Nymphium/moor/LICENSE)
 
