@@ -66,4 +66,4 @@ travis-ci:
 	#) '--travis-ci--'
 	$(LUAROCKS) build $(ROCKSPEC) --only-deps
 	$(LUAROCKS) make
-	$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
+	$(LUA_BIN_MAKE)/$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
