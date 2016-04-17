@@ -30,8 +30,8 @@ test: spec-patch
 install: compile
 	#) '--install--'
 	$(MKDIR) -pv $(LUA_PATH_MAKE)$(MOOR)
-	$(CP) -rv $(MOOR)/*.lua $(LUA_PATH_MAKE)$(MOOR)
-	$(CP) -rv $(BIN_DIR)/$(MOOR)  $(LUA_BIN_MAKE)/
+	$(CP) -v $(MOOR)/*.lua $(LUA_PATH_MAKE)$(MOOR)
+	$(CP) -v $(BIN_DIR)/$(MOOR)  $(LUA_BIN_MAKE)
 
 luarocks-make:
 	#) '--luarocks-make--'

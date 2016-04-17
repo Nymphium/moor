@@ -1,3 +1,4 @@
+package.path = package.path .. ";./?/init.lua;"
 return describe("moor module", function()
   local moor
   local bkenv
