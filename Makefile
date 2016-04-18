@@ -66,4 +66,4 @@ travis-ci:
 	#) '--travis-ci--'
 	$(LUAROCKS) build $(ROCKSPEC) --only-deps
 	LUA_PATH_MAKE=install/luarocks/ LUA_BIN_MAKE=install/luarocks/bin $(LUAROCKS) make --tree=install/luarocks
-	$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
+	# $(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
