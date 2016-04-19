@@ -56,5 +56,5 @@ lines:
 
 travis-ci:
 	#) '--travis-ci--'
-	$(LUAROCKS) make $(ROCKSPEC)
-	/home/travis/build/Nymphium/moor/install/luarocks/bin/$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
+	$(LUAROCKS) make $(ROCKSPEC) --verbose
+	$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
