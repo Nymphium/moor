@@ -21,7 +21,5 @@ install:
   - luarocks install https://raw.githubusercontent.com/Nymphium/alt-getopt/master/alt-getopt-0.7.0-1.rockspec
   - luarocks install https://raw.githubusercontent.com/Nymphium/luakatsu/master/luakatsu-4.0-0.rockspec # for opts_spec (*≧∀≦)
 
-script:
-    which moon;
-    make travis-ci
+script: make travis-ci
 
