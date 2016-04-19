@@ -54,8 +54,12 @@ lines:
 	#) '--lines--'
 	$(WC) -l */*.moon $(BIN_DIR)/$(MOOR)
 
+<<<<<<< Updated upstream
 travis-ci:
 	#) '--travis-ci--'
 	$(LUAROCKS) make $(ROCKSPEC) --verbose
 	$(LS) /home/travis/build/Nymphium/moor/install/luarocks/bin/moor
+	$(LS) /home/travis/build/Nymphium/moor/install/luarocks/bin/moon
 	$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
+=======
+>>>>>>> Stashed changes
