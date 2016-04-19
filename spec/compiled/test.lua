@@ -1,7 +1,5 @@
 return describe("moor module", function()
-  local moor
-  local bkenv
-  local env
+  local moor, bkenv, env
   local to_lua, evalprint
   do
     local _obj_0 = require('moor.utils')

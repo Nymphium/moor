@@ -4,12 +4,11 @@ SPEC_DIR = spec
 BIN_DIR = bin
 PATCH = patch.sh
 
-ROCKSPEC = moor-v3.0-1.rockspec
-
 BUSTED = busted
 CD = cd
 CP = cp
 ECHO = echo
+LS = ls
 LUAROCKS = luarocks
 MAKE = make
 MKDIR = mkdir
@@ -18,6 +17,7 @@ RM = rm
 SED = sed
 WC = wc
 
+ROCKSPEC = $(shell $(ls) moor-*.rockspec)
 LUA_PATH_MAKE ?= $(shell $(LUAROCKS) path --lr-path | $(SED) -e "s/?.*//")
 LUA_BIN_MAKE  ?= $(shell $(LUAROCKS) path --lr-bin | $(SED) -e "s/:.*//")
 

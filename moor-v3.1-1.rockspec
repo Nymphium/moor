@@ -1,5 +1,5 @@
 package = "moor"
-version = "v3.0-1"
+version = "v3.1-1"
 source = {
    url = "git://github.com/nymphium/moor"
 }
