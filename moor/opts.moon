@@ -1,4 +1,9 @@
-import printerr, to_lua, evalprint from require'moor.repl'
+import printerr, to_lua, evalprint from require'moor.utils'
+
+-- lasting loop or not
+loopflag = true
+-- send 0 or 1 to `os.exit` at the end of repl
+exitcode = 0
 
 eval_moon = (env, txt) ->
 	lua_code, err = to_lua txt
@@ -18,7 +23,8 @@ msg = ->
 		'   -L LIB     execute `LIB = require"LIB"` before running REPL\n',
 		''
 
-	os.exit 1
+	loopflag = false
+	exitcode = 1
 
 loadlib = (lib) ->
 	ok, cont = pcall require, lib
@@ -41,7 +47,7 @@ evalline = (env, line) ->
 	is_splash = true
 	nexta = nextagen arg
 
-	while true
+	while loopflag
 		a = nexta!
 
 		break unless a
@@ -68,10 +74,12 @@ evalline = (env, line) ->
 			else
 				if "#{flag}#{rest}" == "no-splash" then is_splash = false
 				else
-					printerr "invlid flag: #{flag}"
-					msg!
+					printerr "invlid flag: #{flag}" unless flag == "h"
+					is_splash = msg!
+					is_exit = true
 
 	printerr "moor on MoonScript version #{(require 'moonscript.version').version} on #{_VERSION}" if is_splash
 
+	env.MOOR_EXITCODE =  exitcode
 	not is_exit
 
