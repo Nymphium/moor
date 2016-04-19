@@ -1,5 +1,7 @@
 MOOR = moor
 
+LOCAL ?= 
+
 SPEC_DIR = spec
 BIN_DIR = bin
 PATCH = patch.sh
@@ -18,28 +20,23 @@ SED = sed
 WC = wc
 
 ROCKSPEC = $(shell $(LS) moor-*.rockspec)
-LUA_PATH_MAKE ?= $(shell $(LUAROCKS) path --lr-path | $(SED) -e "s/?.*//")
-LUA_BIN_MAKE  ?= $(shell $(LUAROCKS) path --lr-bin | $(SED) -e "s/:.*//")
 
-.PHONY: install compile luarocks-make test test-list watch clean lines
+.PHONY: install luarocks-make test test-list clean lines
 
 test: spec-patch
 	#) '---test--'
 	@$(BUSTED) --verbose --keep-going
 
-install: compile
+install:
 	#) '--install--'
-	$(MKDIR) -pv $(LUA_PATH_MAKE)$(MOOR)
-	$(CP) -v $(MOOR)/*.lua $(LUA_PATH_MAKE)$(MOOR)
-	$(CP) -v $(BIN_DIR)/$(MOOR)  $(LUA_BIN_MAKE)
+	$(LUAROCKS) make $(LOCAL) $(ROCKSPEC)
+
+local:
+	$(MAKE) install LOCAL=--local
 
 luarocks-make:
 	#) '--luarocks-make--'
 	$(LUAROCKS) --local make
-
-compile:
-	#) '--compile--'
-	$(MOONC) $(MOOR)/
 
 spec-patch:
 	#) '--spec-patch--'
@@ -48,11 +45,6 @@ spec-patch:
 test-list:
 	#) '---test-list--'
 	@$(BUSTED) --list
-
-watch:
-	#) '--watch--'
-	$(MOONC) $(MOOR)/
-	$(MOONC) -w $(MOOR)/
 
 clean:
 	#) '--clean--'
@@ -64,6 +56,5 @@ lines:
 
 travis-ci:
 	#) '--travis-ci--'
-	$(LUAROCKS) build $(ROCKSPEC) --only-deps
-	LUA_PATH_MAKE=install/luarocks/ LUA_BIN_MAKE=install/luarocks/bin $(LUAROCKS) make --tree=install/luarocks
-	# $(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
+	$(LUAROCKS) make $(ROCKSPEC)
+	$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
