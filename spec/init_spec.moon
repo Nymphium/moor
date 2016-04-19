@@ -1,9 +1,6 @@
-package.path = package.path .. ";./?/init.lua;"
-
 describe "moor module", ->
-	local moor
-	local bkenv
-	local env
+	local moor, bkenv, env
+	import to_lua,  evalprint from require'moor.utils'
 
 	setup ->
 		moor = require'moor.repl'
@@ -33,13 +30,13 @@ describe "moor module", ->
 		with assert
 			.is_true(moon_code != nil)
 			.is_true(lua_code != nil)
-			.are.equals moor.to_lua(moon_code\read "*a"), lua_code\read "*a"
+			.are.equals to_lua(moon_code\read "*a"), lua_code\read "*a"
 
 		moon_code\close!
 		lua_code\close!
 
 	describe "evalprint test", ->
-		import evalprint, to_lua from moor
+		-- import evalprint, to_lua from moor
 
 		it "ex1. variable declaration", ->
 			evalprint env, (to_lua "x, y, z = 1, 2, 3")
@@ -57,7 +54,7 @@ describe "moor module", ->
 				.are.same(env.eindo, 1)
 
 		it "ex3. eval with env", ->
-			ans = evalprint env, (moor.to_lua "x + y + z")
+			ans = evalprint env, (to_lua "x + y + z")
 
 			with assert
 				.is_true(ans == (env.x + env.y + env.z))

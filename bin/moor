@@ -17,3 +17,5 @@ if (require'moor.opts') env, {k, v for k, v in pairs arg}
 	unless L.historysave histfile
 		moor.printerr "failed to save commandline history"
 
+os.exit env.MOOR_EXITCODE
+

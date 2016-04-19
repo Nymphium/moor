@@ -1,8 +1,12 @@
-package.path = package.path .. ";./?/init.lua;"
 return describe("moor module", function()
   local moor
   local bkenv
   local env
+  local to_lua, evalprint
+  do
+    local _obj_0 = require('moor.utils')
+    to_lua, evalprint = _obj_0.to_lua, _obj_0.evalprint
+  end
   setup(function()
     moor = require('moor.repl')
     local deepcpy
@@ -43,14 +47,12 @@ return describe("moor module", function()
       local _with_0 = assert
       _with_0.is_true(moon_code ~= nil)
       _with_0.is_true(lua_code ~= nil)
-      _with_0.are.equals(moor.to_lua(moon_code:read("*a")), lua_code:read("*a"))
+      _with_0.are.equals(to_lua(moon_code:read("*a")), lua_code:read("*a"))
     end
     moon_code:close()
     return lua_code:close()
   end)
   describe("evalprint test", function()
-    local evalprint, to_lua
-    evalprint, to_lua = moor.evalprint, moor.to_lua
     it("ex1. variable declaration", function()
       evalprint(env, (to_lua("x, y, z = 1, 2, 3")))
       do
@@ -75,7 +77,7 @@ return describe("moor module", function()
       end
     end)
     return it("ex3. eval with env", function()
-      local ans = evalprint(env, (moor.to_lua("x + y + z")))
+      local ans = evalprint(env, (to_lua("x + y + z")))
       do
         local _with_0 = assert
         _with_0.is_true(ans == (env.x + env.y + env.z))
