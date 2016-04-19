@@ -2,6 +2,11 @@ language: c
 
 sudo: false
 
+branches:
+  only:
+    - master
+    - travis_ci_test
+
 env:
   global:
     - LUAROCKS=2.2.2
