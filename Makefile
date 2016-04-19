@@ -57,4 +57,4 @@ lines:
 travis-ci:
 	#) '--travis-ci--'
 	$(LUAROCKS) make $(ROCKSPEC)
-	$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
+	$(HOME)/moor/install/luarocks/bin/$(MOOR) -Linspect -e 'print (require"inspect") {"hello", "world"}'
