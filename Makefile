@@ -17,7 +17,7 @@ RM = rm
 SED = sed
 WC = wc
 
-ROCKSPEC = $(shell $(ls) moor-*.rockspec)
+ROCKSPEC = $(shell $(LS) moor-*.rockspec)
 LUA_PATH_MAKE ?= $(shell $(LUAROCKS) path --lr-path | $(SED) -e "s/?.*//")
 LUA_BIN_MAKE  ?= $(shell $(LUAROCKS) path --lr-bin | $(SED) -e "s/:.*//")
 
