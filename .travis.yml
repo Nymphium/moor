@@ -22,6 +22,6 @@ install:
   - luarocks install https://raw.githubusercontent.com/Nymphium/luakatsu/master/luakatsu-4.0-0.rockspec # for opts_spec (*≧∀≦)
 
 script:
-    which moon
+    which moon;
     make travis-ci
 
