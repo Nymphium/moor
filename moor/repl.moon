@@ -100,5 +100,5 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV) ->
 -- this is main repl
 repl = replgen get_line
 
-setmetatable {:replgen, :repl}, __call: (env, _ENV) => repl env, _ENV
+setmetatable {:replgen, :repl, :printerr}, __call: (env, _ENV) => repl env, _ENV
 
