@@ -1,12 +1,12 @@
 return describe("moor module", function()
-  local moor, bkenv, env
+  local moor, bkenv
   local to_lua, evalprint
   do
     local _obj_0 = require('moor.utils')
     to_lua, evalprint = _obj_0.to_lua, _obj_0.evalprint
   end
   setup(function()
-    moor = require('moor.repl')
+    moor = require('moor')
     local deepcpy
     deepcpy = function(t, list)
       if list == nil then
@@ -36,7 +36,6 @@ return describe("moor module", function()
       _G["_ENV"] = deepcpy(_G)
     end
     bkenv = deepcpy(_ENV)
-    env = { }
   end)
   it("to_lua test", function()
     local moon_code = io.open("spec/init_spec.moon")
@@ -51,7 +50,8 @@ return describe("moor module", function()
     return lua_code:close()
   end)
   describe("evalprint test", function()
-    it("ex1. variable declaration", function()
+    local env = { }
+    it("variable declaration", function()
       evalprint(env, (to_lua("x, y, z = 1, 2, 3")))
       do
         local _with_0 = assert
@@ -64,7 +64,7 @@ return describe("moor module", function()
         return _with_0
       end
     end)
-    it("ex2. do-export variable declaration", function()
+    it("do-export variable declaration", function()
       evalprint(env, (to_lua("do indo = 0")))
       evalprint(env, (to_lua("do export eindo = 1")))
       do
@@ -74,7 +74,7 @@ return describe("moor module", function()
         return _with_0
       end
     end)
-    return it("ex3. eval with env", function()
+    return it("eval with env", function()
       local ans = evalprint(env, (to_lua("x + y + z")))
       do
         local _with_0 = assert
@@ -84,13 +84,14 @@ return describe("moor module", function()
     end)
   end)
   return describe("repl test", function()
-    return it("repl", function()
+    it("repl", function()
       local lines = {
         [=====[class Foo]=====],
         [=====[f: -> print "Foo"]=====],
         "",
         [=====[Foo.f!]=====]
       }
+      local env = { }
       local coline = coroutine.create(function()
         for _index_0 = 1, #lines do
           local l = lines[_index_0]
@@ -106,6 +107,33 @@ return describe("moor module", function()
         local _with_0 = assert
         _with_0.is_true(env.Foo.f ~= nil)
         _with_0.are.same(_ENV, bkenv)
+        return _with_0
+      end
+    end)
+    return it("getting local variables test", function()
+      local text = "aiueo"
+      local lines = { }
+      local env = { }
+      local coline = coroutine.create(function()
+        for _index_0 = 1, #lines do
+          local l = lines[_index_0]
+          coroutine.yield(l)
+        end
+      end)
+      local get_line
+      get_line = function()
+        return coroutine.status(coline) ~= "dead" and select(2, coroutine.resume(coline))
+      end
+      (moor.replgen(get_line))(env, _ENV, {
+        "coline",
+        "get_line"
+      })
+      do
+        local _with_0 = assert
+        _with_0.is_true(env.text == text)
+        _with_0.are.same(env.lines, lines)
+        _with_0.is_nil(env.coline)
+        _with_0.is_nil(env.get_line)
         return _with_0
       end
     end)

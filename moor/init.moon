@@ -55,7 +55,38 @@ get_line = ->
 	with line = ln.linenoise prompt.p .. " "
 		if line and line\match '%S' then ln.historyadd line
 
-replgen = (get_line) -> (env = {}, _ENV = _ENV) ->
+
+-- because `_ENV` overrides itself, we must save global vars
+_G = _G
+
+replgen = (get_line) -> (env = {}, _ENV = _ENV, ignorename) ->
+	iterlocals = ->
+		i = 0
+		->
+			i += 1
+			_G.debug.getlocal 3, i -- 3, caller's top level
+
+	added = {}
+
+	if _G.type(ignorename) == "table"
+		for name in *ignorename
+			ignorename[name] = 1
+
+		for k, v in iterlocals!
+			unless ignorename[k]
+				env[k] = v
+
+				if _ENV and not _ENV[k]
+					_ENV[k] = v
+					added[k] = 1
+	elseif _G.type(ignorename) != "string" or ignorename == "*"
+		for k, v in iterlocals!
+			env[k] = v
+
+			if _ENV and not _ENV[k]
+				_ENV[k] = v
+				added[k] = 1
+
 	block = {}
 
 	ln.setcompletion compgen _ENV
@@ -95,10 +126,14 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV) ->
 		if err
 			printerr err
 
+	for k in _G.pairs added
+		_ENV[k] = nil
+
 	env
 
 -- this is main repl
 repl = replgen get_line
 
-setmetatable {:replgen, :repl, :printerr}, __call: (env, _ENV) => repl env, _ENV
+setmetatable {:replgen, :repl, :printerr},
+	__call: (env, _ENV, ignorename) => @repl env, _ENV, ignorename
 

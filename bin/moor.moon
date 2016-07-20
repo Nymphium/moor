@@ -4,7 +4,7 @@ env = {}
 _ENV = setmetatable env, __index: _ENV
 
 if (require'moor.opts') env, {k, v for k, v in pairs arg}
-	moor = require'moor.repl'
+	moor = require'moor'
 
 	L = require'linenoise'
 	histfile = os.getenv"HOME" .. "/.moor_history"

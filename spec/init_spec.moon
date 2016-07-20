@@ -1,9 +1,9 @@
 describe "moor module", ->
-	local moor, bkenv, env
+	local moor, bkenv
 	import to_lua,  evalprint from require'moor.utils'
 
 	setup ->
-		moor = require'moor.repl'
+		moor = require'moor'
 
 		deepcpy = (t, list = {}) -> with ret = {}
 			for k, v in pairs t
@@ -21,7 +21,6 @@ describe "moor module", ->
 		else _G["_ENV"] = deepcpy _G
 
 		bkenv = deepcpy _ENV
-		env = {}
 
 	it "to_lua test", ->
 		moon_code = io.open"spec/init_spec.moon"
@@ -36,16 +35,16 @@ describe "moor module", ->
 		lua_code\close!
 
 	describe "evalprint test", ->
-		-- import evalprint, to_lua from moor
+		env = {}
 
-		it "ex1. variable declaration", ->
+		it "variable declaration", ->
 			evalprint env, (to_lua "x, y, z = 1, 2, 3")
 
 			with assert
 				.are.same(env, {x:1,y:2,z:3})
 				.are.same(bkenv, _ENV)
 
-		it "ex2. do-export variable declaration", ->
+		it "do-export variable declaration", ->
 			evalprint env, (to_lua "do indo = 0")
 			evalprint env, (to_lua "do export eindo = 1")
 
@@ -53,7 +52,7 @@ describe "moor module", ->
 				.is.falsy(env.indo)
 				.are.same(env.eindo, 1)
 
-		it "ex3. eval with env", ->
+		it "eval with env", ->
 			ans = evalprint env, (to_lua "x + y + z")
 
 			with assert
@@ -68,6 +67,8 @@ describe "moor module", ->
 				[=====[Foo.f!]=====]
 			}
 
+			env = {}
+
 			coline = coroutine.create ->
 				coroutine.yield l for l in *lines
 
@@ -79,4 +80,24 @@ describe "moor module", ->
 			with assert
 				.is_true env.Foo.f != nil
 				.are.same _ENV, bkenv
+
+		it "getting local variables test", ->
+			text = "aiueo"
+
+			lines = {}
+			env = {}
+
+			coline = coroutine.create ->
+				coroutine.yield l for l in *lines
+
+			get_line = ->
+				coroutine.status(coline) != "dead" and select 2, coroutine.resume coline
+
+			(moor.replgen get_line) env, _ENV, {"coline", "get_line"}
+
+			with assert
+				.is_true env.text == text
+				.are.same env.lines, lines
+				.is_nil env.coline
+				.is_nil env.get_line
 

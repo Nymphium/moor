@@ -3,7 +3,7 @@ describe "moor.opt module", ->
 
 	setup ->
 		opts = require'moor.opts'
-		moor = require'moor.repl'
+		moor = require'moor'
 
 		deepcpy = (t, list = {}) -> with ret = {}
 			for k, v in pairs t
