@@ -19,7 +19,7 @@ before_install:
   - source .travis/setenv_lua.sh
 
 install:
-  - luarocks install https://luarocks.org/manifests/olivine-labs/busted-2.0.rc11-0.rockspec
+  - luarocks install busted
   - luarocks install loadkit
   - luarocks build https://raw.githubusercontent.com/leafo/moonscript/master/moonscript-dev-1.rockspec
   - luarocks install https://raw.githubusercontent.com/Nymphium/luakatsu/master/luakatsu-4.0-0.rockspec # for opts_spec (*≧∀≦)
