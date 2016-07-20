@@ -55,14 +55,14 @@ you can call REPL in your code
 
 ```lua
 ...
-local newenv = (require'moor.repl')({}, _ENV)
+local var = 10 -- it can be referenced by the repl
+local newenv = (require'moor')({}, _ENV)
 local hoge = newenv.foo
 ...
 
 ```
 
 ## TODO
-- take up local vars when repl called from code
 - repl command (needed?)
 
 ## License
