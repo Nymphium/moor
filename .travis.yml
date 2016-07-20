@@ -22,7 +22,7 @@ install:
   - luarocks install busted
   - luarocks install loadkit
   - luarocks install luakatsu # for opts_spec (*≧∀≦)
-  - luarocks install moonscript
+  - luarocks install https://raw.githubusercontent.com/leafo/moonscript/master/moonscript-dev-1.rockspec
   - make install
   - make test
 
