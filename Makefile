@@ -21,36 +21,42 @@ WC = wc
 
 ROCKSPEC = $(shell $(LS) moor-*.rockspec)
 
-.PHONY: install luarocks-make test test-list clean lines
+.PHONY: test install local lint compile spec-patch test-list clean lines
 
 test: spec-patch
-	#) '---test--'
+	#) '---$@--'
 	@$(BUSTED) --verbose --keep-going
 
-install:
-	#) '--install--'
+install: lint compile
+	#) '---$@--'
 	$(LUAROCKS) make $(LOCAL) $(ROCKSPEC)
 
 local:
+	#) '---$@--'
 	$(MAKE) install LOCAL=--local
 
-luarocks-make:
-	#) '--luarocks-make--'
-	$(LUAROCKS) --local make
+lint:
+	#) '---$@--'
+	$(LUAROCKS) lint $(ROCKSPEC)
+
+compile:
+	#) '---$@--'
+	$(MOONC) $(MOOR)/*.moon
+	$(MOONC) $(BIN_DIR)/$(MOOR).moon
 
 spec-patch:
-	#) '--spec-patch--'
+	#) '---$@--'
 	$(CD) $(SPEC_DIR); ./$(PATCH)
 
 test-list:
-	#) '---test-list--'
+	#) '---$@--'
 	@$(BUSTED) --list
 
 clean:
-	#) '--clean--'
-	-$(RM) $(MOOR)/*.lua $(BIN_DIR)/*.lua
+	#) '---$@--'
+	-$(RM) $(MOOR)/*.lua $(BIN_DIR)/$(MOOR).lua
 
 lines:
-	#) '--lines--'
-	$(WC) -l */*.moon $(BIN_DIR)/$(MOOR)
+	#) '---$@--'
+	$(WC) -l */*.moon
 
