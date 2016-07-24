@@ -23,8 +23,8 @@ install:
   - luarocks install loadkit
   - luarocks install luakatsu # for opts_spec (*≧∀≦)
   - luarocks install https://raw.githubusercontent.com/leafo/moonscript/master/moonscript-dev-1.rockspec
-  - make test
   - make rockmake
+  - make test
 
 script:
   moor -e 'print (require"inspect") {"hello", "world"}'
