@@ -13,7 +13,7 @@ dependencies = {
    "moonscript >= 0.4", "inspect", "linenoise"
 }
 build = {
-   type = "builtin",
+   type = "make",
    modules = {},
    install = {
       bin = {

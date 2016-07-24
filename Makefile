@@ -23,13 +23,19 @@ ROCKSPEC = $(shell $(LS) moor-*.rockspec)
 
 .PHONY: test install local lint compile spec-patch test-list clean lines
 
+compile:
+	#) '---$@--'
+	$(MOONC) $(MOOR)/*.moon
+	$(MOONC) $(BIN_DIR)/$(MOOR).moon
+
+install:
+	#) '---$@--'
+	#) WARN: This is not install phase but just alias to 'lint'
+	$(MAKE) lint
+
 test: spec-patch
 	#) '---$@--'
 	@$(BUSTED) --verbose --keep-going
-
-install: lint compile
-	#) '---$@--'
-	$(LUAROCKS) make $(LOCAL) $(ROCKSPEC)
 
 local:
 	#) '---$@--'
@@ -38,11 +44,6 @@ local:
 lint:
 	#) '---$@--'
 	$(LUAROCKS) lint $(ROCKSPEC)
-
-compile:
-	#) '---$@--'
-	$(MOONC) $(MOOR)/*.moon
-	$(MOONC) $(BIN_DIR)/$(MOOR).moon
 
 spec-patch:
 	#) '---$@--'
