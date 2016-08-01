@@ -91,6 +91,10 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV, ignorename) ->
 
 	ln.setcompletion compgen _ENV
 
+	-- `require`able moon file
+	ms = _G.require"moonscript.base"
+	ms.insert_loader!
+
 	while true
 		line = get_line!
 
@@ -128,6 +132,10 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV, ignorename) ->
 
 	for k in _G.pairs added
 		_ENV[k] = nil
+
+	-- `require`able moon file deinit
+	ms.remove_loader!
+	_G.package.moonpath = nil
 
 	env
 
