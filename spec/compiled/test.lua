@@ -75,9 +75,10 @@ return describe("moor module", function()
       end
     end)
     return it("eval with env", function()
-      local ans = evalprint(env, (to_lua("x + y + z")))
+      local ok, ans = evalprint(env, (to_lua("x + y + z")))
       do
         local _with_0 = assert
+        _with_0.is_true(ok)
         _with_0.is_true(ans == (env.x + env.y + env.z))
         return _with_0
       end
@@ -110,7 +111,7 @@ return describe("moor module", function()
         return _with_0
       end
     end)
-    return it("getting local variables test", function()
+    it("getting local variables test", function()
       local text = "aiueo"
       local lines = { }
       local env = { }
@@ -136,6 +137,34 @@ return describe("moor module", function()
         _with_0.is_nil(env.get_line)
         return _with_0
       end
+    end)
+    return it("require moon file test", function()
+      local moonpath = package.moonpath
+      local loaders = package.loaders
+      package.moonpath = nil
+      package.loaders = nil
+      local lines = {
+        [[test = require'spec.test_for_require']]
+      }
+      local env = { }
+      local coline = coroutine.create(function()
+        for _index_0 = 1, #lines do
+          local l = lines[_index_0]
+          coroutine.yield(l)
+        end
+      end)
+      local get_line
+      get_line = function()
+        return coroutine.status(coline) ~= "dead" and select(2, coroutine.resume(coline))
+      end
+      (moor.replgen(get_line))(env, _ENV)
+      do
+        local _with_0 = assert
+        _with_0.is_equal("hello", env.test)
+        _with_0.is_nil(package.moonpath)
+      end
+      package.moonpath = moonpath
+      package.loaders = loaders
     end)
   end)
 end)

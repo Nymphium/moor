@@ -111,7 +111,10 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV, ignorename) ->
 			false, to_lua line
 
 		if lua_code and not err
-			evalprint env, lua_code
+			ok, err_ = evalprint env, lua_code
+			unless ok
+				printerr err_
+				continue
 		elseif is_fncls or err\match "^Failed to parse"
 			insert block, line
 
@@ -119,11 +122,16 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV, ignorename) ->
 				\deepen!
 				while line and #line > 0
 					line = get_line!
+
+					-- display-specific `else` indent adjust with escape sequence
+					if line and line\match"^else$" or line\match"^else%s+" or line\match"^elseif%s+"
+						_G.print "\x1b[1A\x1b[2K? #{line}"
 					insert block, " #{line}"
 
 			lua_code, err = to_lua concat block, "\n"
 
-			if lua_code then evalprint env, lua_code
+			if lua_code
+				ok, err_ = evalprint env, lua_code
 
 			block = {}
 
@@ -143,5 +151,5 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV, ignorename) ->
 repl = replgen get_line
 
 setmetatable {:replgen, :repl, :printerr},
-	__call: (env, _ENV, ignorename) => @repl env, _ENV, ignorename
+	__call: (env, _ENV, ignorename) => repl env, _ENV, ignorename
 

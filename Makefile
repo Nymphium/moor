@@ -21,12 +21,15 @@ WC = wc
 
 ROCKSPEC = $(shell $(LS) moor-*.rockspec)
 
-.PHONY: test install local lint compile spec-patch test-list clean lines
+.PHONY: continue test install local lint compile spec-patch test-list clean lines
 
 compile:
 	#) '---$@---'
-	$(MOONC) $(MOOR)/*.moon
-	$(MOONC) $(BIN_DIR)/$(MOOR).moon
+	$(MOONC) $(MOOR)/*.moon $(BIN_DIR)/$(MOOR).moon
+
+continue:
+	#) '---$@---'
+	$(MOONC) -w $(MOOR)/*.moon $(BIN_DIR)/$(MOOR).moon
 
 install:
 	#) '---$@---'
@@ -37,7 +40,7 @@ rockmake:
 	#) '---$@---'
 	$(LUAROCKS) $(LOCAL) make $(ROCKSPEC)
 
-test: spec-patch
+test: compile spec-patch
 	#) '---$@---'
 	@$(BUSTED) --verbose --keep-going
 
