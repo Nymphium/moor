@@ -21,7 +21,6 @@ describe "moor module", ->
 		else _G["_ENV"] = deepcpy _G
 
 		bkenv = deepcpy _ENV
-
 	it "to_lua test", ->
 		moon_code = io.open"spec/init_spec.moon"
 		lua_code = io.open"spec/compiled/test.lua"
@@ -33,7 +32,6 @@ describe "moor module", ->
 
 		moon_code\close!
 		lua_code\close!
-
 	describe "evalprint test", ->
 		env = {}
 
@@ -43,7 +41,6 @@ describe "moor module", ->
 			with assert
 				.are.same(env, {x:1,y:2,z:3})
 				.are.same(bkenv, _ENV)
-
 		it "do-export variable declaration", ->
 			evalprint env, (to_lua "do indo = 0")
 			evalprint env, (to_lua "do export eindo = 1")
@@ -51,13 +48,12 @@ describe "moor module", ->
 			with assert
 				.is.falsy(env.indo)
 				.are.same(env.eindo, 1)
-
 		it "eval with env", ->
-			ans = evalprint env, (to_lua "x + y + z")
+			ok, ans = evalprint env, (to_lua "x + y + z")
 
 			with assert
+				.is_true ok
 				.is_true(ans == (env.x + env.y + env.z))
-
 	describe "repl test", ->
 		it "repl", ->
 			lines = {
@@ -80,7 +76,6 @@ describe "moor module", ->
 			with assert
 				.is_true env.Foo.f != nil
 				.are.same _ENV, bkenv
-
 		it "getting local variables test", ->
 			text = "aiueo"
 
@@ -100,4 +95,28 @@ describe "moor module", ->
 				.are.same env.lines, lines
 				.is_nil env.coline
 				.is_nil env.get_line
+		it "require moon file test", ->
+			moonpath = package.moonpath
+			loaders = package.loaders
+
+			package.moonpath = nil
+			package.loaders = nil
+
+			lines = {[[test = require'spec.test_for_require']]}
+			env = {}
+
+			coline = coroutine.create ->
+				coroutine.yield l for l in *lines
+
+			get_line = ->
+				coroutine.status(coline) != "dead" and select 2, coroutine.resume coline
+
+			(moor.replgen get_line) env, _ENV
+
+			with assert
+				.is_equal "hello", env.test
+				.is_nil package.moonpath -- is the moor not affective to the caller?
+
+			package.moonpath = moonpath
+			package.loaders = loaders
 

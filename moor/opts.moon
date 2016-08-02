@@ -1,15 +1,15 @@
-import printerr, to_lua, evalprint from require'moor.utils'
+import printerr, to_lua, fnwrap, evalprint, init_moonpath, deinit_moonpath from require'moor.utils'
 
 -- lasting loop or not
 loopflag = true
 -- send 0 or 1 to `os.exit` at the end of repl
 exitcode = 0
 
-eval_moon = (env, txt) ->
+eval_moon = (env, txt, non_verbose) ->
 	lua_code, err = to_lua txt
 
 	if err then nil, err
-	else evalprint env, lua_code
+	else evalprint env, lua_code, non_verbose
 
 nextagen = => -> table.remove @, 1
 
@@ -26,20 +26,22 @@ msg = ->
 	loopflag = false
 	exitcode = 1
 
-loadlib = (lib) ->
-	ok, cont = pcall require, lib
+loadlib = (env, lib) ->
+	ok, cont = eval_moon env, "return require '#{lib}'", true
 
 	unless ok
-		printerr cont, '\n'
+		printerr cont
+
 		msg!
-	
+
 	cont
 
 evalline = (env, line) ->
-	ok, err = pcall eval_moon, env, line
+	ok, err = eval_moon env, line
 
 	unless ok
 		printerr err
+
 		msg!
 
 (env, arg) ->
@@ -62,9 +64,9 @@ evalline = (env, line) ->
 
 		switch flag
 			when 'l'
-				loadlib lstuff
+				loadlib env, lstuff
 			when 'L'
-				if lib = loadlib lstuff
+				if lib = loadlib env, lstuff
 					env[rest] = lib
 			when 'e'
 				is_exit = true
