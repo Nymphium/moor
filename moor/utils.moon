@@ -1,7 +1,19 @@
 parse = require'moonscript.parse'
 compile = require'moonscript.compile'
 inspect = require'inspect'
+ms = require'moonscript.base'
 import remove, insert, concat from table
+
+init_moonpath = ->
+	moonpath = package.moonpath
+	ms.insert_loader!
+
+	moonpath != nil
+
+deinit_moonpath = (has_moonpath) ->
+	ms.remove_loader!
+	unless has_moonpath
+		package.moonpath = nil
 
 printerr = (...) -> io.stderr\write "#{concat {...}, "\t"}\n"
 
@@ -19,7 +31,9 @@ to_lua = (code) ->
 -- Lua evaluator & printer
 fnwrap = (code) -> "return function(__newenv) local _ENV = setmetatable(__newenv, {__index = _ENV}) #{code} end"
 
-evalprint = (env, lua_code) ->
+evalprint = (env, lua_code, non_verbose) ->
+	has_moonpath = init_moonpath!
+
 	lua_code = if vardec = lua_code\match"^local%s+(.*)$"
 			if exportFnCl = vardec\match "^%w+%s+(.*)$"
 				if exportFnCl\match "^="
@@ -36,12 +50,14 @@ evalprint = (env, lua_code) ->
 
 	result = {pcall luafn!, env}
 
+	deinit_moonpath has_moonpath
+
 	ok = remove result, 1
 
-	unless ok then printerr result[1]
+	ok, unless ok then result[1]
 	else
 		if #result > 0
-			print (inspect result)\match"^%s*{%s*(.*)%s*}%s*%n?%s*$"
+			print (inspect result)\match"^%s*{%s*(.*)%s*}%s*%n?%s*$" unless non_verbose
 			table.unpack result
 
-{:printerr, :to_lua, :fnwrap, :evalprint}
+{:printerr, :to_lua, :fnwrap, :evalprint, :init_moonpath, :deinit_moonpath}
