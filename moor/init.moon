@@ -1,6 +1,6 @@
 ln = require'linenoise'
 import remove, insert, concat from table
-import printerr, to_lua, evalprint from require'moor.utils'
+import printerr, to_lua, evalprint, init_moonpath, deinit_moonpath from require'moor.utils'
 
 prompt =
 	p: ">"
@@ -92,8 +92,7 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV, ignorename) ->
 	ln.setcompletion compgen _ENV
 
 	-- `require`able moon file
-	ms = _G.require"moonscript.base"
-	ms.insert_loader!
+	has_moonpath = init_moonpath!
 
 	while true
 		line = get_line!
@@ -106,25 +105,27 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV, ignorename) ->
 			-- continue
 
 		is_fncls, lua_code, err =  if line\match_if_fncls!
-			true
-		else
-			false, to_lua line
+				true
+			else
+				false, to_lua line
+
+		ok = lua_code != nil
 
 		if lua_code and not err
-			ok, err_ = evalprint env, lua_code
-			unless ok
-				printerr err_
-				continue
+			ok, err = evalprint env, lua_code
 		elseif is_fncls or err\match "^Failed to parse"
 			insert block, line
 
 			prompt.reset with prompt
 				\deepen!
+
+				is_conditionalstart = line\match "^if%s+" or line\match"^unless%s+"
+
 				while line and #line > 0
 					line = get_line!
 
 					-- display-specific `else` indent adjust with escape sequence
-					if line and line\match"^else$" or line\match"^else%s+" or line\match"^elseif%s+"
+					if line and is_conditionalstart and line\match"^else$" or line\match"^else%s+" or line\match"^elseif%s+"
 						_G.print "\x1b[1A\x1b[2K? #{line}"
 					insert block, " #{line}"
 
@@ -132,18 +133,18 @@ replgen = (get_line) -> (env = {}, _ENV = _ENV, ignorename) ->
 
 			if lua_code
 				ok, err_ = evalprint env, lua_code
+				err = err_ unless ok
 
 			block = {}
 
-		if err
+		if not ok and err
 			printerr err
 
 	for k in _G.pairs added
 		_ENV[k] = nil
 
 	-- `require`able moon file deinit
-	ms.remove_loader!
-	_G.package.moonpath = nil
+	deinit_moonpath has_moonpath
 
 	env
 
