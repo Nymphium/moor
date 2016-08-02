@@ -66,5 +66,5 @@ local hoge = newenv.foo
 - repl command (needed?)
 
 ## License
-[MIT](https://github.com/Nymphium/moor/LICENSE)
+[MIT](https://github.com/Nymphium/moor/tree/master/LICENSE)
 
