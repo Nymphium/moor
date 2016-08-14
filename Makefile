@@ -42,6 +42,7 @@ rockmake:
 
 test: compile spec-patch
 	#) '---$@---'
+	@pwd
 	@$(BUSTED) --verbose --keep-going
 
 local:
@@ -55,8 +56,6 @@ rocklint:
 spec-patch:
 	#) '---$@---'
 	./$(SPEC_DIR)/$(PATCH)
-	# $(CD) $(SPEC_DIR); ./$(PATCH)
-	# $(CD) -
 
 test-list:
 	#) '---$@---'
