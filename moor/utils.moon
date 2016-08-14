@@ -34,17 +34,12 @@ fnwrap = (code) -> "return function(__newenv) local _ENV = setmetatable(__newenv
 evalprint = (env, lua_code, non_verbose) ->
 	has_moonpath = init_moonpath!
 
-	lua_code = if vardec = lua_code\match"^local%s+(.*)$"
-			if exportFnCl = vardec\match "^%w+%s+(.*)$"
-				if exportFnCl\match "^="
-					"#{lua_code\match"local%s+(%w+)"} #{exportFnCl}"
-				else exportFnCl
-			else vardec
-		elseif lua_code\match"__class"
-			lua_code = lua_code\gsub "^local%s+", "export" , "1"
-		else lua_code
+	if nolocal = lua_code\match "^local%s+(.*)"
+		lua_code = nolocal
+		unless lua_code\match "^[^\n]*="
+			lua_code = lua_code\match"^.-\n(.*)"
 
-	luafn, err = load fnwrap(lua_code), "tmp"
+	luafn, err = load fnwrap(lua_code != nil and lua_code or ""), "tmp"
 
 	return printerr err if err
 
