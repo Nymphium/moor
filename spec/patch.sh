@@ -1,7 +1,8 @@
 #!/bin/bash
 
-target="init_spec"
-output="compiled/test.lua"
+dir="spec"
+target="${dir}/init_spec"
+output="${dir}/compiled/test.lua"
 
 moonc "${target}".moon
 

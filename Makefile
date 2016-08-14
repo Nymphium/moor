@@ -54,7 +54,9 @@ rocklint:
 
 spec-patch:
 	#) '---$@---'
-	$(CD) $(SPEC_DIR); ./$(PATCH)
+	./$(SPEC_DIR)/$(PATCH)
+	# $(CD) $(SPEC_DIR); ./$(PATCH)
+	# $(CD) -
 
 test-list:
 	#) '---$@---'
