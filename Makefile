@@ -48,7 +48,7 @@ rockmake:
 test: compile spec-patch spec-compile
 	#) '---$@---'
 	@pwd
-	@$(BUSTED) --verbose --keep-going
+	@$(BUSTED) --verbose --keep-going $(SPEC_DIR)
 
 local:
 	#) '---$@---'
