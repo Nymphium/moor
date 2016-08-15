@@ -47,8 +47,7 @@ rockmake:
 
 test: compile spec-patch spec-compile
 	#) '---$@---'
-	@pwd
-	@$(BUSTED) --verbose --keep-going $(SPEC_DIR)
+	for f in $(SPEC_DIR)/*.moon; do $(BUSTED) --verbose --keep-going $$f; done
 
 local:
 	#) '---$@---'
