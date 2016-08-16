@@ -42,7 +42,7 @@ rockmake:
 
 test: compile spec-patch
 	#) '---$@---'
-	@$(BUSTED) --verbose --keep-going
+	for f in $(SPEC_DIR)/*.moon; do $(BUSTED) --verbose --keep-going $$f; done
 
 local:
 	#) '---$@---'
@@ -54,7 +54,7 @@ rocklint:
 
 spec-patch:
 	#) '---$@---'
-	$(CD) $(SPEC_DIR); ./$(PATCH)
+	./$(SPEC_DIR)/$(PATCH)
 
 test-list:
 	#) '---$@---'
