@@ -27,11 +27,6 @@ compile:
 	#) '---$@---'
 	$(MOONC) $(MOOR)/*.moon $(BIN_DIR)/$(MOOR).moon
 
-spec-compile:
-	#) '---$@---'
-	$(MOONC) $(SPEC_DIR)/*.moon
-
-
 continue:
 	#) '---$@---'
 	$(MOONC) -w $(MOOR)/*.moon $(BIN_DIR)/$(MOOR).moon
@@ -45,7 +40,7 @@ rockmake:
 	#) '---$@---'
 	$(LUAROCKS) $(LOCAL) make $(ROCKSPEC)
 
-test: compile spec-patch spec-compile
+test: compile spec-patch
 	#) '---$@---'
 	for f in $(SPEC_DIR)/*.moon; do $(BUSTED) --verbose --keep-going $$f; done
 
