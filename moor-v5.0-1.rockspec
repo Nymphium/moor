@@ -1,7 +1,8 @@
 package = "moor"
-version = "v4.0-7"
+version = "v5.0-1"
 source = {
-   url = "git://github.com/nymphium/moor"
+   url = "git://github.com/nymphium/moor",
+   tag = "v5.0"
 }
 description = {
    summary = "MoonScript REPL",
@@ -10,7 +11,9 @@ description = {
    license = "MIT"
 }
 dependencies = {
-   "moonscript >= 0.4", "inspect", "linenoise"
+   "moonscript >= 0.4",
+   "inspect",
+   "linenoise"
 }
 build = {
    type = "make",

@@ -20,6 +20,7 @@ SED = sed
 WC = wc
 
 ROCKSPEC = $(shell $(LS) moor-*.rockspec)
+LUAROCKS_TMP =/tmp/luarocks-test
 
 .PHONY: continue test install local lint compile spec-patch test-list clean lines
 
@@ -43,6 +44,7 @@ rockmake:
 test: compile spec-patch
 	#) '---$@---'
 	for f in $(SPEC_DIR)/*.moon; do $(BUSTED) --verbose --keep-going $$f; done
+	$(LUAROCKS) make $(ROCKSPEC) --tree=$(LUAROCKS_TMP)
 
 local:
 	#) '---$@---'
