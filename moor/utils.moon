@@ -3,6 +3,7 @@ compile = require'moonscript.compile'
 inspect = require'inspect'
 ms = require'moonscript.base'
 import remove, insert, concat from table
+unpack or= table.unpack
 
 init_moonpath = ->
 	moonpath = package.moonpath
@@ -53,6 +54,6 @@ evalprint = (env, lua_code, non_verbose) ->
 	else
 		if #result > 0
 			print (inspect result)\match"^%s*{%s*(.*)%s*}%s*%n?%s*$" unless non_verbose
-			table.unpack result
+			unpack result
 
 {:printerr, :to_lua, :fnwrap, :evalprint, :init_moonpath, :deinit_moonpath}
